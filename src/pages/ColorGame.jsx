@@ -86,7 +86,7 @@ const ColorGame = () => {
     const totalPoints = betAmountMultiplier * betQuantity;
     if (totalPoints <= 0) return alert('Invalid points.');
     if (isLocked) return alert('Entries are closed for this round!');
-    if (gameState?.demoBalance < totalPoints) return alert('Insufficient demo points.');
+    if (gameState?.walletBalance < totalPoints) return alert('Insufficient balance.');
 
     setSubmitting(true);
     try {
@@ -155,7 +155,7 @@ const ColorGame = () => {
           <div className="flex justify-between items-end relative z-10">
             <h2 className="text-4xl font-black text-white flex items-baseline gap-1 tracking-tight">
               <span className="text-xl text-[#38BDF8]">₹</span>
-              {gameState?.demoBalance?.toLocaleString() || 0}
+              {gameState?.walletBalance?.toLocaleString() || 0}
             </h2>
           </div>
 

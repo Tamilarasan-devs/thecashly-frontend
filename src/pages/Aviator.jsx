@@ -233,7 +233,7 @@ const Aviator = () => {
       try {
         const profileRes = await api.get('/auth/me');
         if (profileRes.data.success) {
-          setBalance(profileRes.data.data.demoBalance);
+          setBalance(profileRes.data.data.walletBalance / 100);
         }
         
         const token = localStorage.getItem('token');
@@ -275,7 +275,7 @@ const Aviator = () => {
             const cp = data.crashPoint || data.multiplier || 1.0;
             setMultiplier(cp);
             setCrashMulti(cp);
-            api.get('/auth/me').then(res => setBalance(res.data.data.demoBalance));
+            api.get('/auth/me').then(res => setBalance(res.data.data.walletBalance / 100));
           }
 
           if (data.recentCrashes) {
@@ -346,7 +346,7 @@ const Aviator = () => {
           <h1 className="text-xl font-black italic tracking-wider text-white drop-shadow-md">AVIATOR</h1>
         </div>
         <div className="flex flex-col items-end">
-          <span className="text-[9px] font-bold text-[#38BDF8] uppercase tracking-widest">Demo Balance</span>
+          <span className="text-[9px] font-bold text-[#38BDF8] uppercase tracking-widest">Live Wallet</span>
           <span className="text-sm font-black text-white">₹{balance.toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
         </div>
       </header>
