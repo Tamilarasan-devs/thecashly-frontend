@@ -1,0 +1,69 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+@theme {
+  /* UI Colors based on reference image */
+  --color-bg-light: #F8FAFC;
+  --color-text-main: #0F172A;
+  --color-text-muted: #64748B;
+  
+  --color-brand-blue: #4A3AFF;
+  --color-brand-blue-dark: #1E1B4B;
+  --color-brand-blue-light: #818CF8;
+  
+  --color-success: #10B981;
+  --color-success-bg: #D1FAE5;
+  
+  --color-warning: #F59E0B;
+  --color-warning-bg: #FEF3C7;
+  
+  --font-sans: 'Outfit', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+:root {
+  --background: var(--color-bg-light);
+  --foreground: var(--color-text-main);
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Gradients matching the UI */
+.blue-gradient {
+  background: linear-gradient(135deg, #5C43FF 0%, #2563EB 100%);
+}
+
+.orange-pink-gradient {
+  background: linear-gradient(135deg, #FDE68A 0%, #FCA5A5 100%);
+}
+
+.active-plan-gradient {
+  background: linear-gradient(135deg, #60A5FA 0%, #818CF8 100%);
+}
+
+/* Glassmorphism panels */
+.glass-panel {
+  background: #ffffff;
+  border: 1px solid #E2E8F0;
+  border-radius: 1.5rem;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+}
+
+.btn-primary {
+  background-color: var(--color-brand-blue-dark);
+  color: white;
+  border-radius: 9999px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
