@@ -237,7 +237,7 @@ const Aviator = () => {
         }
         
         const token = localStorage.getItem('token');
-        const newSocket = io(import.meta.env.VITE_API_URL || 'http://localhost:5001', {
+        const newSocket = io(import.meta.env.VITE_API_URL?.replace('/api', '') || 'https://thecashly-backend.onrender.com', {
           auth: { token }
         });
         
