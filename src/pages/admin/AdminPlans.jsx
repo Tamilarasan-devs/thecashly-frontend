@@ -6,6 +6,7 @@ const AdminPlans = () => {
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
+  const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -40,6 +41,34 @@ const AdminPlans = () => {
     }
   };
 
+  const handleNewPlan = () => {
+    setEditingId(null);
+    setFormData({
+      name: '',
+      description: '',
+      initialPayment: '',
+      dailyAmount: '',
+      durationDays: '',
+      status: 'active',
+      image: null
+    });
+    setShowModal(true);
+  };
+
+  const handleEdit = (plan) => {
+    setEditingId(plan._id);
+    setFormData({
+      name: plan.name,
+      description: plan.description || '',
+      initialPayment: plan.initialPayment / 100,
+      dailyAmount: plan.dailyAmount / 100,
+      durationDays: plan.durationDays,
+      status: plan.status,
+      image: null
+    });
+    setShowModal(true);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -58,14 +87,20 @@ const AdminPlans = () => {
     }
 
     try {
-      await api.post('/plans', data, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
+      if (editingId) {
+        await api.put(`/plans/${editingId}`, data, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+      } else {
+        await api.post('/plans', data, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+      }
       setShowModal(false);
       fetchPlans();
     } catch (err) {
-      console.error('Error creating plan', err);
-      alert('Failed to create plan');
+      console.error('Error saving plan', err);
+      alert('Failed to save plan');
     }
   };
 
@@ -87,7 +122,7 @@ const AdminPlans = () => {
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold text-[#0F172A]">Manage Plans</h1>
         <button 
-          onClick={() => setShowModal(true)}
+          onClick={handleNewPlan}
           className="flex items-center space-x-2 rounded-lg bg-[#4A3AFF] px-4 py-2 text-white hover:bg-[#64748B]"
         >
           <Plus size={16} />
@@ -139,7 +174,7 @@ const AdminPlans = () => {
                 </td>
                 <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
                   <div className="flex justify-end space-x-2">
-                    <button className="text-indigo-600 hover:text-indigo-900">
+                    <button onClick={() => handleEdit(plan)} className="text-indigo-600 hover:text-indigo-900">
                       <Edit size={18} />
                     </button>
                     <button onClick={() => handleArchive(plan._id)} className="text-red-600 hover:text-red-900">
@@ -156,25 +191,29 @@ const AdminPlans = () => {
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
-            <h2 className="mb-4 text-xl font-bold text-gray-900">Create New Plan</h2>
+            <h2 className="mb-4 text-xl font-bold text-gray-900">{editingId ? 'Edit Plan' : 'Create New Plan'}</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700">Plan Name</label>
-                <input type="text" name="name" required className="mt-1 w-full rounded-md border p-2" onChange={handleInputChange} />
+                <input type="text" name="name" value={formData.name} required className="mt-1 w-full rounded-md border p-2" onChange={handleInputChange} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Description</label>
+                <input type="text" name="description" value={formData.description} required className="mt-1 w-full rounded-md border p-2" onChange={handleInputChange} />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Initial Payment (₹)</label>
-                  <input type="number" name="initialPayment" required className="mt-1 w-full rounded-md border p-2" onChange={handleInputChange} />
+                  <input type="number" name="initialPayment" value={formData.initialPayment} required className="mt-1 w-full rounded-md border p-2" onChange={handleInputChange} />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Daily Return (₹)</label>
-                  <input type="number" name="dailyAmount" required className="mt-1 w-full rounded-md border p-2" onChange={handleInputChange} />
+                  <input type="number" name="dailyAmount" value={formData.dailyAmount} required className="mt-1 w-full rounded-md border p-2" onChange={handleInputChange} />
                 </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700">Duration (Days)</label>
-                <input type="number" name="durationDays" required className="mt-1 w-full rounded-md border p-2" onChange={handleInputChange} />
+                <input type="number" name="durationDays" value={formData.durationDays} required className="mt-1 w-full rounded-md border p-2" onChange={handleInputChange} />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700">Status</label>
@@ -189,7 +228,7 @@ const AdminPlans = () => {
               </div>
               <div className="mt-6 flex justify-end space-x-3">
                 <button type="button" onClick={() => setShowModal(false)} className="rounded-md border px-4 py-2 text-gray-600">Cancel</button>
-                <button type="submit" className="rounded-md bg-[#4A3AFF] px-4 py-2 text-white">Create</button>
+                <button type="submit" className="rounded-md bg-[#4A3AFF] px-4 py-2 text-white">{editingId ? 'Save Changes' : 'Create'}</button>
               </div>
             </form>
           </div>
