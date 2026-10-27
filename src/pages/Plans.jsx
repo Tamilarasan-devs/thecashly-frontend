@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../lib/axios';
 import { useAuth } from '../context/AuthContext';
-import { PlusCircle, AlertCircle } from 'lucide-react';
+import { PlusCircle, AlertCircle, Sparkles, Clock, Package } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
 
@@ -11,6 +11,7 @@ const Plans = () => {
   const { user, fetchUser } = useAuth();
   const [purchasing, setPurchasing] = useState(null);
   const [message, setMessage] = useState('');
+  const [activeTab, setActiveTab] = useState('normal'); // 'normal' | 'special' | 'coming_soon'
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -30,6 +31,16 @@ const Plans = () => {
 
   const handlePurchase = async (plan) => {
     setMessage('');
+
+    if (plan.status === 'hidden' || plan.status === 'draft') {
+      setMessage('This plan is currently hidden and locked.');
+      return;
+    }
+
+    if (plan.isComingSoon || plan.planType === 'coming_soon') {
+      setMessage('This plan is coming soon and cannot be purchased yet.');
+      return;
+    }
 
     // Client side check
     if (user.walletBalance < plan.initialPayment) {
@@ -59,6 +70,17 @@ const Plans = () => {
 
   if (loading) return null;
 
+  const normalPlans = plans.filter(p => !p.isSpecial && !p.isComingSoon && p.planType !== 'special' && p.planType !== 'coming_soon');
+  const specialPlans = plans.filter(p => p.isSpecial || p.planType === 'special');
+  const comingSoonPlans = plans.filter(p => p.isComingSoon || p.planType === 'coming_soon');
+
+  const filteredPlans = 
+    activeTab === 'special' 
+      ? specialPlans 
+      : activeTab === 'coming_soon' 
+        ? comingSoonPlans 
+        : normalPlans;
+
   return (
     <div className="space-y-6">
       <div className="mb-4">
@@ -77,6 +99,48 @@ const Plans = () => {
         </Link>
       </div>
 
+      {/* Category Tabs: Normal, Special, Coming Soon */}
+      <div className="flex items-center gap-2 p-1.5 bg-gray-100/90 rounded-2xl shadow-inner">
+        <button
+          type="button"
+          onClick={() => setActiveTab('normal')}
+          className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-xs font-black transition-all ${
+            activeTab === 'normal'
+              ? 'bg-white text-[#0F172A] shadow-md shadow-gray-200/60 scale-[1.02]'
+              : 'text-gray-500 hover:text-gray-900'
+          }`}
+        >
+          <Package size={14} className={activeTab === 'normal' ? 'text-[#4A3AFF]' : ''} />
+          <span>Normal ({normalPlans.length})</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab('special')}
+          className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-xs font-black transition-all ${
+            activeTab === 'special'
+              ? 'bg-gradient-to-r from-amber-500 to-yellow-500 text-white shadow-md shadow-amber-500/25 scale-[1.02]'
+              : 'text-gray-500 hover:text-amber-600'
+          }`}
+        >
+          <Sparkles size={14} />
+          <span>Special ({specialPlans.length})</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab('coming_soon')}
+          className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-xs font-black transition-all ${
+            activeTab === 'coming_soon'
+              ? 'bg-gradient-to-r from-orange-500 to-amber-600 text-white shadow-md shadow-orange-500/25 scale-[1.02]'
+              : 'text-gray-500 hover:text-orange-600'
+          }`}
+        >
+          <Clock size={14} />
+          <span>Coming Soon ({comingSoonPlans.length})</span>
+        </button>
+      </div>
+
       {message && (
         <div className={`rounded-xl p-4 text-sm font-semibold flex flex-col sm:flex-row justify-between items-start sm:items-center ${message.includes('success') ? 'bg-[#E6F7ED] text-[#10B981]' : 'bg-[#FFF1F2] text-[#F43F5E]'}`}>
           <div className="flex items-center space-x-2">
@@ -91,16 +155,22 @@ const Plans = () => {
         </div>
       )}
 
-      <div className="flex flex-col space-y-4">
-        {plans.map((plan) => (
-          <ProductCard 
-            key={plan._id} 
-            plan={plan} 
-            isPurchasing={purchasing === plan._id} 
-            onPurchase={handlePurchase} 
-          />
-        ))}
-      </div>
+      {filteredPlans.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-gray-200 bg-white p-10 text-center">
+          <p className="text-gray-500 font-medium text-sm">No plans found in this category.</p>
+        </div>
+      ) : (
+        <div className="flex flex-col space-y-4">
+          {filteredPlans.map((plan) => (
+            <ProductCard 
+              key={plan._id} 
+              plan={plan} 
+              isPurchasing={purchasing === plan._id} 
+              onPurchase={handlePurchase} 
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 };

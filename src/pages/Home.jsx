@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
-import { Bell, User, Eye, Wallet, Package, Calendar, ArrowRight, Star, Rocket } from 'lucide-react';
+import { Bell, User, Eye, Wallet, Package, Calendar, ArrowRight, Star, Rocket, Gift, Sparkles, Clock, RefreshCw } from 'lucide-react';
 import api from '../lib/axios';
 import ProductCard from '../components/ProductCard';
+import AnnouncementModal from '../components/AnnouncementModal';
 
 const Home = () => {
   const { user, fetchUser } = useAuth();
@@ -12,6 +13,9 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [plans, setPlans] = useState([]);
   const [purchasing, setPurchasing] = useState(null);
+  const [collecting, setCollecting] = useState(false);
+  const [showBonusModal, setShowBonusModal] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState('normal'); // 'normal' | 'special' | 'coming_soon'
 
   const fetchData = async () => {
     try {
@@ -34,9 +38,33 @@ const Home = () => {
   useEffect(() => {
     fetchUser();
     fetchData();
+
+    // Auto-show bonus promo modal on visit if not dismissed yet
+    const dismissed = sessionStorage.getItem('cashly_bonus_dismissed');
+    if (!dismissed) {
+      const timer = setTimeout(() => {
+        setShowBonusModal(true);
+      }, 600);
+      return () => clearTimeout(timer);
+    }
   }, []);
 
+  const handleCloseModal = () => {
+    setShowBonusModal(false);
+    sessionStorage.setItem('cashly_bonus_dismissed', 'true');
+  };
+
   const handlePurchase = async (plan) => {
+    if (plan.status === 'hidden' || plan.status === 'draft') {
+      alert('This plan is currently hidden and locked.');
+      return;
+    }
+
+    if (plan.isComingSoon || plan.planType === 'coming_soon') {
+      alert('This plan is coming soon and cannot be purchased yet.');
+      return;
+    }
+
     // Client side check
     if (user.walletBalance < plan.initialPayment) {
       alert(`Insufficient wallet balance. You need ₹${((plan.initialPayment - user.walletBalance) / 100).toFixed(2)} more to buy ${plan.name}.`);
@@ -64,15 +92,24 @@ const Home = () => {
   };
 
   const handleCollect = async (id) => {
+    if (collecting) return;
+    setCollecting(true);
     try {
       const res = await api.post(`/payments/subscriptions/${id}/collect`);
       if (res.data.success) {
+        if (res.data.amount > 0) {
+          alert(`Successfully collected ₹${(res.data.amount / 100).toFixed(2)} to your wallet!`);
+        } else {
+          alert(res.data.message || 'No pending returns to collect right now.');
+        }
         // Refresh everything to reflect the new balance and updated plan numbers
         await fetchUser();
         await fetchData();
       }
     } catch (error) {
-      alert(error.response?.data?.error || 'Failed to collect earnings');
+      alert(error.response?.data?.error || error.response?.data?.message || 'Failed to collect earnings');
+    } finally {
+      setCollecting(false);
     }
   };
 
@@ -229,12 +266,20 @@ const Home = () => {
               <div className="flex items-center gap-4 border-b border-gray-100 pb-5">
                 <div className="w-[72px] h-[72px] bg-gradient-to-br from-[#E0D8FF] to-[#F4F2FF] rounded-[20px] flex items-center justify-center relative shadow-inner border border-white overflow-visible">
                   {activeSub.plan?.productImage?.url ? (
-                    <img src={activeSub.plan.productImage.url} alt={activeSub.planSnapshot.name} className="w-full h-full object-cover rounded-[18px] mix-blend-multiply" />
-                  ) : (
-                    <div className="w-[36px] h-[36px] bg-[#6C5DD3] rounded-md rotate-45 flex items-center justify-center relative shadow-sm">
-                       <div className="absolute inset-0 bg-black/10 rounded-md"></div>
-                    </div>
-                  )}
+                    <img 
+                      src={activeSub.plan.productImage.url} 
+                      alt={activeSub.planSnapshot?.name || 'Active Product'} 
+                      className="w-full h-full object-cover rounded-[18px]" 
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                        const fallback = e.currentTarget.nextElementSibling;
+                        if (fallback) fallback.classList.remove('hidden');
+                      }}
+                    />
+                  ) : null}
+                  <div className={`w-[36px] h-[36px] bg-[#6C5DD3] rounded-md rotate-45 flex items-center justify-center relative shadow-sm ${activeSub.plan?.productImage?.url ? 'hidden' : ''}`}>
+                     <div className="absolute inset-0 bg-black/10 rounded-md"></div>
+                  </div>
                   <span className="absolute -bottom-2 -left-0 right-0 mx-auto w-fit bg-[#FBBF24] text-[9px] font-black text-[#0F172A] px-2 py-0.5 rounded shadow-sm border-2 border-white uppercase z-10">
                     NEW
                   </span>
@@ -272,20 +317,35 @@ const Home = () => {
                   </div>
                 </div>
 
-                {/* Action Button */}
-                <button 
-                  onClick={() => {
-                    if(activeSub.eligibleAmount > 0) {
-                      handleCollect(activeSub._id);
-                    } else {
-                      navigate('/services/my-products');
-                    }
-                  }}
-                  className="w-full bg-gradient-to-r from-[#533df5] to-[#2563EB] text-white py-3.5 rounded-2xl text-[13px] font-extrabold flex items-center justify-center gap-2 shadow-[0_8px_20px_rgba(37,99,235,0.25)] hover:opacity-90 transition-all mt-1"
-                >
-                  View Details
-                  <ArrowRight size={16} strokeWidth={3} />
-                </button>
+                {/* Action Buttons */}
+                <div className="flex flex-col sm:flex-row items-center gap-2 mt-1">
+                  {activeSub.eligibleAmount > 0 && (
+                    <button 
+                      onClick={() => handleCollect(activeSub._id)}
+                      disabled={collecting}
+                      className="w-full sm:flex-1 bg-gradient-to-r from-[#10B981] to-[#059669] text-white py-3.5 rounded-2xl text-[13px] font-extrabold flex items-center justify-center gap-2 shadow-[0_8px_20px_rgba(16,185,129,0.25)] hover:opacity-90 transition-all disabled:opacity-50 cursor-pointer"
+                    >
+                      {collecting ? (
+                        <>
+                          <RefreshCw size={15} className="animate-spin" />
+                          <span>Collecting...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles size={15} />
+                          <span>Claim ₹{(activeSub.eligibleAmount / 100).toFixed(2)}</span>
+                        </>
+                      )}
+                    </button>
+                  )}
+                  <button 
+                    onClick={() => navigate('/services/my-products')}
+                    className="w-full sm:flex-1 bg-gradient-to-r from-[#533df5] to-[#2563EB] text-white py-3.5 rounded-2xl text-[13px] font-extrabold flex items-center justify-center gap-2 shadow-[0_8px_20px_rgba(37,99,235,0.25)] hover:opacity-90 transition-all cursor-pointer"
+                  >
+                    <span>View Details</span>
+                    <ArrowRight size={16} strokeWidth={3} />
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -308,7 +368,7 @@ const Home = () => {
         </div>
 
         {/* Color Game Promo Banner */}
-        <div className="rounded-[24px] p-5 flex items-center justify-between shadow-[0_8px_30px_rgb(0,0,0,0.06)] bg-gradient-to-r from-[#A78BFA] via-[#8B5CF6] to-[#7C3AED] mt-4 relative overflow-hidden">
+        {/* <div className="rounded-[24px] p-5 flex items-center justify-between shadow-[0_8px_30px_rgb(0,0,0,0.06)] bg-gradient-to-r from-[#A78BFA] via-[#8B5CF6] to-[#7C3AED] mt-4 relative overflow-hidden">
           <div className="absolute inset-0 bg-white/10 blur-xl"></div>
           <div className="relative z-10 flex-1 pr-4">
             <h3 className="text-white font-extrabold text-[17px] flex items-center gap-1.5 tracking-tight">
@@ -321,30 +381,122 @@ const Home = () => {
           <Link to="/games" className="relative z-10 bg-white text-[#7C3AED] px-4 py-2 rounded-full text-xs font-bold shadow-md flex items-center gap-1 hover:scale-105 transition">
             Play Now <ArrowRight size={12} strokeWidth={3} />
           </Link>
-        </div>
+        </div> */}
 
-        {/* Available Products */}
-        <div className="pt-6 pb-2">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-extrabold text-[#0F172A] tracking-tight">Explore Products</h3>
-            <Link to="/plans" className="text-[#4A3AFF] text-xs font-bold flex items-center gap-0.5">
-              See All <ArrowRight size={14} />
-            </Link>
-          </div>
-          
-          <div className="flex flex-col space-y-4">
-            {plans.map((plan) => (
-              <ProductCard 
-                key={plan._id} 
-                plan={plan} 
-                isPurchasing={purchasing === plan._id}
-                onPurchase={handlePurchase} 
-              />
-            ))}
-          </div>
-        </div>
+        {/* Available Products - Categorized Listing */}
+        {(() => {
+          const normalPlans = plans.filter(p => !p.isSpecial && !p.isComingSoon && p.planType !== 'special' && p.planType !== 'coming_soon');
+          const specialPlans = plans.filter(p => p.isSpecial || p.planType === 'special');
+          const comingSoonPlans = plans.filter(p => p.isComingSoon || p.planType === 'coming_soon');
+
+          const displayedPlans = 
+            selectedCategory === 'special' 
+              ? specialPlans 
+              : selectedCategory === 'coming_soon' 
+                ? comingSoonPlans 
+                : normalPlans;
+
+          return (
+            <div className="pt-6 pb-2">
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <h3 className="text-xl font-extrabold text-[#0F172A] tracking-tight">Explore Products</h3>
+                  <p className="text-xs text-[#64748B] font-medium mt-0.5">Filter by category to view products</p>
+                </div>
+                <Link to="/plans" className="text-[#4A3AFF] text-xs font-bold flex items-center gap-0.5 hover:underline">
+                  See All <ArrowRight size={14} />
+                </Link>
+              </div>
+
+              {/* Category Filter Pills: Normal, Special, Coming Soon */}
+              <div className="flex items-center gap-2 p-1.5 bg-gray-100/90 rounded-2xl mb-4 shadow-inner">
+                <button
+                  type="button"
+                  onClick={() => setSelectedCategory('normal')}
+                  className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-xs font-black transition-all ${
+                    selectedCategory === 'normal'
+                      ? 'bg-white text-[#0F172A] shadow-md shadow-gray-200/60 scale-[1.02]'
+                      : 'text-gray-500 hover:text-gray-900'
+                  }`}
+                >
+                  <Package size={14} className={selectedCategory === 'normal' ? 'text-[#4A3AFF]' : ''} />
+                  <span>Normal ({normalPlans.length})</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setSelectedCategory('special')}
+                  className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-xs font-black transition-all ${
+                    selectedCategory === 'special'
+                      ? 'bg-gradient-to-r from-amber-500 to-yellow-500 text-white shadow-md shadow-amber-500/25 scale-[1.02]'
+                      : 'text-gray-500 hover:text-amber-600'
+                  }`}
+                >
+                  <Sparkles size={14} />
+                  <span>Special ({specialPlans.length})</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setSelectedCategory('coming_soon')}
+                  className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-xs font-black transition-all ${
+                    selectedCategory === 'coming_soon'
+                      ? 'bg-gradient-to-r from-orange-500 to-amber-600 text-white shadow-md shadow-orange-500/25 scale-[1.02]'
+                      : 'text-gray-500 hover:text-orange-600'
+                  }`}
+                >
+                  <Clock size={14} />
+                  <span>Coming Soon ({comingSoonPlans.length})</span>
+                </button>
+              </div>
+              
+              {displayedPlans.length === 0 ? (
+                <div className="rounded-2xl border border-dashed border-gray-200 bg-white p-8 text-center">
+                  <p className="text-gray-500 font-semibold text-xs">
+                    {selectedCategory === 'special' 
+                      ? 'No special plans available at this moment.' 
+                      : selectedCategory === 'coming_soon' 
+                        ? 'No upcoming plans scheduled right now.' 
+                        : 'No normal plans available right now.'}
+                  </p>
+                </div>
+              ) : (
+                <div className="flex flex-col space-y-4">
+                  {displayedPlans.map((plan) => (
+                    <ProductCard 
+                      key={plan._id} 
+                      plan={plan} 
+                      isPurchasing={purchasing === plan._id}
+                      onPurchase={handlePurchase} 
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })()}
 
       </div>
+
+      {/* Floating Bonus Trigger Button */}
+      <button
+        onClick={() => setShowBonusModal(true)}
+        className="fixed bottom-24 right-4 z-40 bg-gradient-to-r from-[#4A3AFF] via-[#6366F1] to-[#EC4899] text-white p-3 rounded-full shadow-[0_8px_25px_rgba(74,58,255,0.6)] flex items-center gap-1.5 hover:scale-105 active:scale-95 transition-all group cursor-pointer border-2 border-white/30"
+        title="Claim 100% Deposit Bonus"
+      >
+        <Gift size={20} className="fill-white/20 animate-bounce" />
+        <span className="text-xs font-black uppercase tracking-wider pr-1 hidden sm:inline">Bonus</span>
+      </button>
+
+      {/* Promotional Bonus Modal */}
+      <AnnouncementModal
+        isOpen={showBonusModal}
+        onClose={handleCloseModal}
+        onClaim={() => {
+          handleCloseModal();
+          navigate('/add-cash');
+        }}
+      />
     </div>
   );
 };

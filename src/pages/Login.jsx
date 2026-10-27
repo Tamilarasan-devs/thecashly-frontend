@@ -1,22 +1,41 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Wallet, Mail, Lock, ArrowRight } from 'lucide-react';
+import { Wallet, Mail, Lock, ArrowRight, Eye, EyeOff, AlertCircle, X, Loader2 } from 'lucide-react';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [fieldError, setFieldError] = useState(''); // 'email' | 'password' | 'all' | 'general' | ''
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [shakeKey, setShakeKey] = useState(0);
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setFieldError('');
+
+    const cleanEmail = email.trim();
+    if (!cleanEmail) {
+      setError('Please enter your email address.');
+      setFieldError('email');
+      setShakeKey((k) => k + 1);
+      return;
+    }
+    if (!password) {
+      setError('Please enter your password.');
+      setFieldError('password');
+      setShakeKey((k) => k + 1);
+      return;
+    }
+
     setLoading(true);
     try {
-      const res = await login(email, password);
+      const res = await login(cleanEmail, password);
       if (res.success) {
         if (res.data.role === 'admin') {
           navigate('/admin');
@@ -25,9 +44,29 @@ const Login = () => {
         }
       }
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to login');
+      const serverMsg = err.response?.data?.error || 'Unable to sign in. Please verify your connection and try again.';
+      const serverField = err.response?.data?.field || 'general';
+      setError(serverMsg);
+      setFieldError(serverField);
+      setShakeKey((k) => k + 1);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleEmailChange = (e) => {
+    setEmail(e.target.value);
+    if (fieldError === 'email' || fieldError === 'all') {
+      setFieldError('');
+      setError('');
+    }
+  };
+
+  const handlePasswordChange = (e) => {
+    setPassword(e.target.value);
+    if (fieldError === 'password' || fieldError === 'all') {
+      setFieldError('');
+      setError('');
     }
   };
 
@@ -58,44 +97,101 @@ const Login = () => {
           </div>
           
           {error && (
-            <div className="mb-6 rounded-2xl bg-red-100 border border-red-200 p-4 text-sm font-medium text-red-700 backdrop-blur-md">
-              {error}
+            <div 
+              key={shakeKey}
+              className="mb-6 rounded-2xl bg-red-50/95 border border-red-200 p-4 text-sm font-medium text-red-800 backdrop-blur-md shadow-sm animate-shake flex items-start gap-3 transition-all"
+            >
+              <div className="p-1 rounded-full bg-red-100 text-red-600 shrink-0 mt-0.5">
+                <AlertCircle size={18} />
+              </div>
+              <div className="flex-1 text-left">
+                <div className="font-bold text-red-900 text-xs uppercase tracking-wide mb-0.5">
+                  {fieldError === 'email' ? 'Email Not Found' : fieldError === 'password' ? 'Incorrect Password' : 'Login Error'}
+                </div>
+                <div className="text-xs text-red-700 leading-relaxed font-medium">
+                  {error}
+                </div>
+                {fieldError === 'email' && (
+                  <Link 
+                    to="/register" 
+                    className="inline-block mt-2 text-xs font-bold text-[#4A3AFF] hover:underline"
+                  >
+                    Don't have an account? Sign up here &rarr;
+                  </Link>
+                )}
+              </div>
+              <button 
+                type="button"
+                onClick={() => { setError(''); setFieldError(''); }}
+                className="text-gray-400 hover:text-gray-600 transition-colors p-1"
+                aria-label="Dismiss error"
+              >
+                <X size={16} />
+              </button>
             </div>
           )}
           
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-5" noValidate>
             <div className="space-y-1.5">
               <label className="block text-xs font-bold text-gray-800 uppercase tracking-wider ml-1">Email Address</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center justify-center pointer-events-none">
-                  <Mail size={18} className="text-gray-500" />
+                  <Mail size={18} className={fieldError === 'email' || fieldError === 'all' ? "text-red-500" : "text-gray-500"} />
                 </div>
                 <input 
                   type="email" 
                   required
                   placeholder="Enter your email"
-                  className="w-full bg-white/60 border border-gray-300 text-gray-900 placeholder-gray-500 rounded-2xl py-3.5 pl-11 pr-4 focus:outline-none focus:border-[#4A3AFF] focus:bg-white transition-all font-medium backdrop-blur-sm shadow-sm"
+                  className={`w-full bg-white/60 border ${
+                    fieldError === 'email' || fieldError === 'all' 
+                      ? 'border-red-400 bg-red-50/40 ring-2 ring-red-100 focus:border-red-500 focus:ring-red-200' 
+                      : 'border-gray-300 focus:border-[#4A3AFF]'
+                  } text-gray-900 placeholder-gray-500 rounded-2xl py-3.5 pl-11 pr-4 focus:outline-none focus:bg-white transition-all font-medium backdrop-blur-sm shadow-sm`}
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={handleEmailChange}
+                  autoComplete="email"
                 />
               </div>
+              {fieldError === 'email' && (
+                <p className="text-xs font-semibold text-red-600 flex items-center gap-1 mt-1 ml-1">
+                  <AlertCircle size={13} /> Check email address
+                </p>
+              )}
             </div>
             
             <div className="space-y-1.5">
               <label className="block text-xs font-bold text-gray-800 uppercase tracking-wider ml-1">Password</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center justify-center pointer-events-none">
-                  <Lock size={18} className="text-gray-500" />
+                  <Lock size={18} className={fieldError === 'password' || fieldError === 'all' ? "text-red-500" : "text-gray-500"} />
                 </div>
                 <input 
-                  type="password" 
+                  type={showPassword ? 'text' : 'password'} 
                   required
                   placeholder="Enter your password"
-                  className="w-full bg-white/60 border border-gray-300 text-gray-900 placeholder-gray-500 rounded-2xl py-3.5 pl-11 pr-4 focus:outline-none focus:border-[#4A3AFF] focus:bg-white transition-all font-medium backdrop-blur-sm shadow-sm"
+                  className={`w-full bg-white/60 border ${
+                    fieldError === 'password' || fieldError === 'all' 
+                      ? 'border-red-400 bg-red-50/40 ring-2 ring-red-100 focus:border-red-500 focus:ring-red-200' 
+                      : 'border-gray-300 focus:border-[#4A3AFF]'
+                  } text-gray-900 placeholder-gray-500 rounded-2xl py-3.5 pl-11 pr-11 focus:outline-none focus:bg-white transition-all font-medium backdrop-blur-sm shadow-sm`}
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={handlePasswordChange}
+                  autoComplete="current-password"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-500 hover:text-gray-700 transition-colors"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
               </div>
+              {fieldError === 'password' && (
+                <p className="text-xs font-semibold text-red-600 flex items-center gap-1 mt-1 ml-1">
+                  <AlertCircle size={13} /> Check password
+                </p>
+              )}
             </div>
 
             <div className="flex items-center justify-end pt-1">
@@ -105,10 +201,19 @@ const Login = () => {
             <button 
               type="submit" 
               disabled={loading}
-              className="w-full bg-[#0F172A] text-white rounded-2xl py-4 text-sm font-extrabold shadow-[0_10px_20px_rgba(15,23,42,0.2)] hover:shadow-[0_10px_25px_rgba(15,23,42,0.3)] hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 mt-2 disabled:opacity-70 disabled:hover:translate-y-0"
+              className="w-full bg-[#0F172A] text-white rounded-2xl py-4 text-sm font-extrabold shadow-[0_10px_20px_rgba(15,23,42,0.2)] hover:shadow-[0_10px_25px_rgba(15,23,42,0.3)] hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 mt-2 disabled:opacity-70 disabled:hover:translate-y-0 disabled:cursor-not-allowed"
             >
-              {loading ? 'Signing in...' : 'Sign In'}
-              {!loading && <ArrowRight size={18} strokeWidth={3} />}
+              {loading ? (
+                <>
+                  <Loader2 size={18} className="animate-spin" />
+                  <span>Signing in...</span>
+                </>
+              ) : (
+                <>
+                  <span>Sign In</span>
+                  <ArrowRight size={18} strokeWidth={3} />
+                </>
+              )}
             </button>
             
             {/* Quick Login Buttons for Development/Testing */}
@@ -118,6 +223,8 @@ const Login = () => {
                 <button
                   type="button"
                   onClick={() => {
+                    setError('');
+                    setFieldError('');
                     setEmail('tamilarasan@gmail.com');
                     setPassword('admin');
                   }}
@@ -128,6 +235,8 @@ const Login = () => {
                 <button
                   type="button"
                   onClick={() => {
+                    setError('');
+                    setFieldError('');
                     setEmail('user@example.com');
                     setPassword('password');
                   }}

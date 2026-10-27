@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, ListPlus, Banknote, Users, MessageSquare, LogOut, Menu, X, Wallet, PlusCircle } from 'lucide-react';
+import { LayoutDashboard, ListPlus, Banknote, Users, MessageSquare, LogOut, Menu, X, Wallet, PlusCircle, QrCode } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const AdminLayout = () => {
@@ -12,6 +12,7 @@ const AdminLayout = () => {
     { name: 'Dashboard', path: '/admin', icon: LayoutDashboard },
     { name: 'Plans', path: '/admin/plans', icon: ListPlus },
     { name: 'Add Cash List', path: '/admin/topups', icon: PlusCircle },
+    { name: 'QR & UPI Settings', path: '/admin/payment-settings', icon: QrCode },
     { name: 'Withdrawals', path: '/admin/withdrawals', icon: Banknote },
     { name: 'Users', path: '/admin/users', icon: Users },
     { name: 'Support Tickets', path: '/admin/tickets', icon: MessageSquare },

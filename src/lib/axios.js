@@ -22,14 +22,22 @@ api.interceptors.request.use(
   }
 );
 
-// Optional: Add a response interceptor to handle global 401 Unauthorized errors
+// Response interceptor to handle global 401 Unauthorized errors
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      // Clear token and redirect to login if unauthorized
-      localStorage.removeItem('token');
-      window.location.href = '/login';
+      const requestUrl = error.config?.url || '';
+      const isAuthEndpoint = requestUrl.includes('/auth/login') || requestUrl.includes('/auth/register');
+      const isAuthPage = typeof window !== 'undefined' && 
+        (window.location.pathname === '/login' || window.location.pathname === '/register');
+
+      // Only clear token and redirect if it's NOT an authentication request and not already on the auth pages
+      // This prevents unwanted page reload/refresh when entering invalid credentials on the login page
+      if (!isAuthEndpoint && !isAuthPage) {
+        localStorage.removeItem('token');
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }

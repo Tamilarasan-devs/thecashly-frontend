@@ -26,6 +26,7 @@ import AdminWithdrawals from './pages/admin/AdminWithdrawals';
 import AdminTickets from './pages/admin/AdminTickets';
 import AdminUsers from './pages/admin/AdminUsers';
 import AdminTopUps from './pages/admin/AdminTopUps';
+import AdminPaymentSettings from './pages/admin/AdminPaymentSettings';
 
 const ProtectedRoute = ({ children, roleRequired }) => {
   const { user, loading } = useAuth();
@@ -55,9 +56,11 @@ function App() {
           <Route path="plans/:id" element={<ProductDetails />} />
           <Route path="add-cash" element={<AddCash />} />
           <Route path="wallet" element={<Wallet />} />
+          <Route path="withdrawals" element={<Navigate to="/wallet#withdrawals" replace />} />
           <Route path="services" element={<Services />} />
           <Route path="services/my-products" element={<MyProducts />} />
           <Route path="services/history" element={<TransactionHistory />} />
+          <Route path="services/withdrawals" element={<Navigate to="/services/history?tab=withdrawals" replace />} />
           <Route path="services/schedule" element={<PayoutSchedule />} />
           <Route path="services/support" element={<Support />} />
           <Route path="services/terms" element={<Terms />} />
@@ -76,6 +79,7 @@ function App() {
           <Route index element={<AdminDashboard />} />
           <Route path="plans" element={<AdminPlans />} />
           <Route path="topups" element={<AdminTopUps />} />
+          <Route path="payment-settings" element={<AdminPaymentSettings />} />
           <Route path="withdrawals" element={<AdminWithdrawals />} />
           <Route path="users" element={<AdminUsers />} />
           <Route path="tickets" element={<AdminTickets />} />

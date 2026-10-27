@@ -23,6 +23,15 @@ const Services = () => {
       border: 'group-hover:border-[#10B981]'
     },
     { 
+      name: 'Withdrawal History', 
+      icon: History, 
+      path: '/wallet#withdrawals', 
+      desc: 'Track payout requests & approval status',
+      color: 'text-[#059669]',
+      bg: 'bg-[#D1FAE5]',
+      border: 'group-hover:border-[#059669]'
+    },
+    { 
       name: 'Transaction History', 
       icon: History, 
       path: '/services/history', 
@@ -58,15 +67,15 @@ const Services = () => {
       bg: 'bg-[#F1F5F9]',
       border: 'group-hover:border-[#64748B]'
     },
-    { 
-      name: 'Mini Games', 
-      icon: LayoutGrid, 
-      path: '/games', 
-      desc: 'Play & win points instantly',
-      color: 'text-[#8B5CF6]',
-      bg: 'bg-[#F5F3FF]',
-      border: 'group-hover:border-[#8B5CF6]'
-    },
+    // { 
+    //   name: 'Mini Games', 
+    //   icon: LayoutGrid, 
+    //   path: '/games', 
+    //   desc: 'Play & win points instantly',
+    //   color: 'text-[#8B5CF6]',
+    //   bg: 'bg-[#F5F3FF]',
+    //   border: 'group-hover:border-[#8B5CF6]'
+    // },
   ];
 
   return (

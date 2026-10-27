@@ -1,8 +1,8 @@
 import React, { useEffect, useRef } from 'react';
-import { X, Sparkles, ArrowRight, Info } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { X, Crown, ArrowRight, Zap, Gift, ShieldCheck } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
-const AnnouncementModal = ({ isOpen, onClose, plans = [] }) => {
+const AnnouncementModal = ({ isOpen, onClose, onClaim }) => {
   const modalRef = useRef(null);
   const navigate = useNavigate();
 
@@ -10,14 +10,13 @@ const AnnouncementModal = ({ isOpen, onClose, plans = [] }) => {
     const handleEscape = (e) => {
       if (e.key === 'Escape' && isOpen) onClose();
     };
-    
+
     if (isOpen) {
       document.addEventListener('keydown', handleEscape);
-      // Basic focus trap - focus the modal when opened
       if (modalRef.current) modalRef.current.focus();
       document.body.style.overflow = 'hidden';
     }
-    
+
     return () => {
       document.removeEventListener('keydown', handleEscape);
       document.body.style.overflow = 'unset';
@@ -26,103 +25,114 @@ const AnnouncementModal = ({ isOpen, onClose, plans = [] }) => {
 
   if (!isOpen) return null;
 
+  const handleAction = () => {
+    onClose();
+    if (onClaim) {
+      onClaim();
+    } else {
+      navigate('/add-cash');
+    }
+  };
+
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-300">
-      {/* Blurred Backdrop */}
-      <div 
-        className="absolute inset-0 bg-[#4A3AFF]/80 transition-opacity"
+    <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+      {/* Background click dismiss */}
+      <div
+        className="absolute inset-0"
         onClick={onClose}
         aria-hidden="true"
       />
-      
-      {/* Modal Content */}
-      <div 
-        ref={modalRef}
-        tabIndex={-1}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="modal-title"
-        className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-white rounded-3xl shadow-2xl border border-gray-100 flex flex-col outline-none overscroll-contain"
-      >
-        {/* Header */}
-        <div className="sticky top-0 z-10 flex items-center justify-between p-6 bg-white border-b border-gray-100">
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center">
-              <Sparkles size={16} />
+
+      {/* Main Modal Wrapper (Card + Floating Close Button) */}
+      <div className="relative z-10 flex flex-col items-center w-full max-w-[345px] sm:max-w-[375px] animate-modal-pop">
+        
+        {/* Modal Card */}
+        <div
+          ref={modalRef}
+          tabIndex={-1}
+          role="dialog"
+          aria-modal="true"
+          className="w-full rounded-[30px] overflow-hidden bg-gradient-to-b from-[#0F172A] via-[#140D36] to-[#090518] border border-indigo-500/40 shadow-[0_20px_60px_-10px_rgba(74,58,255,0.55)] flex flex-col relative select-none outline-none"
+        >
+          {/* Top Neon Ambient Glow Line */}
+          <div className="absolute top-0 left-0 right-0 h-[2.5px] bg-gradient-to-r from-transparent via-[#EC4899] to-transparent shadow-[0_0_12px_#EC4899]" />
+
+          {/* Header Section */}
+          <div className="pt-4 px-4 pb-2 text-center flex flex-col items-center">
+            {/* Crown Logo Badge */}
+            <div className="flex items-center gap-1.5 text-xs font-black tracking-widest text-[#FBBF24] uppercase">
+              <Crown size={15} className="fill-[#FBBF24] text-[#FBBF24] drop-shadow-md" />
+              <span>THE CASHLY</span>
             </div>
-            <span className="font-bold text-[#0F172A] text-sm uppercase tracking-wider">TheCashly</span>
+
+            {/* 3D Gold Headline */}
+            <h2 className="text-center font-black text-[27px] sm:text-[31px] tracking-tight leading-none mt-1.5 bg-gradient-to-b from-[#FFFBEB] via-[#FBBF24] to-[#B45309] bg-clip-text text-transparent drop-shadow-[0_3px_8px_rgba(0,0,0,0.9)]">
+              BRAND NEW BONUS
+            </h2>
+
+            {/* Glowing Offer Ribbon */}
+            <div className="mt-2 px-3.5 py-1 rounded-full bg-gradient-to-r from-[#EC4899] via-[#8B5CF6] to-[#4A3AFF] text-white text-[11px] sm:text-[11.5px] font-black uppercase tracking-wider shadow-lg shadow-purple-900/40 text-center">
+              100% DOUBLE LUCK DEPOSIT BONUS
+            </div>
           </div>
-          <button 
-            onClick={onClose}
-            className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-500 hover:bg-gray-100 hover:text-[#0F172A] transition-colors focus:ring-2 focus:ring-[var(--color-navy)] focus:outline-none"
-            aria-label="Close modal"
-          >
-            <X size={20} />
-          </button>
+
+          {/* 3D Prize Wheel & Vault Artwork */}
+          <div className="relative mx-3.5 my-1.5 rounded-2xl overflow-hidden border border-white/10 shadow-[0_8px_25px_rgba(0,0,0,0.7)] group">
+            <img
+              src="/cashly_bonus.jpg"
+              alt="Cashly Brand New Bonus"
+              className="w-full h-48 sm:h-52 object-cover object-center transform group-hover:scale-105 transition-transform duration-500"
+            />
+
+            {/* Badges Overlay */}
+            <div className="absolute top-2 left-2 bg-gradient-to-r from-red-600 to-amber-500 text-white text-[10px] font-black px-2.5 py-0.5 rounded-full shadow-lg flex items-center gap-1 uppercase tracking-wider border border-white/20">
+              <span>🔥 HOT BONUS</span>
+            </div>
+
+            <div className="absolute top-2 right-2 bg-gradient-to-r from-[#4A3AFF] to-[#8B5CF6] text-white text-[10px] font-black px-2.5 py-0.5 rounded-full shadow-lg flex items-center gap-1 uppercase tracking-wider border border-white/20">
+              <span>⚡ 2X MATCH</span>
+            </div>
+          </div>
+
+          {/* Feature Micro-Badges */}
+          <div className="grid grid-cols-3 gap-1 px-3.5 mt-2">
+            <div className="bg-white/5 border border-white/10 rounded-xl py-1.5 px-1 flex flex-col items-center text-center">
+              <Gift size={14} className="text-[#FBBF24] mb-0.5" />
+              <span className="text-[10px] font-bold text-slate-200">100% Match</span>
+              <span className="text-[8.5px] text-slate-400">Instant credit</span>
+            </div>
+            <div className="bg-white/5 border border-white/10 rounded-xl py-1.5 px-1 flex flex-col items-center text-center">
+              <Zap size={14} className="text-[#EC4899] mb-0.5" />
+              <span className="text-[10px] font-bold text-slate-200">₹100 Min</span>
+              <span className="text-[8.5px] text-slate-400">Easy top-up</span>
+            </div>
+            <div className="bg-white/5 border border-white/10 rounded-xl py-1.5 px-1 flex flex-col items-center text-center">
+              <ShieldCheck size={14} className="text-[#34D399] mb-0.5" />
+              <span className="text-[10px] font-bold text-slate-200">Zero Fees</span>
+              <span className="text-[8.5px] text-slate-400">Fast payout</span>
+            </div>
+          </div>
+
+          {/* Bottom Action Ribbon CTA Button */}
+          <div className="p-3.5 mt-2 bg-gradient-to-t from-black/80 to-transparent">
+            <button
+              onClick={handleAction}
+              className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-[#4A3AFF] via-[#6366F1] to-[#EC4899] hover:from-[#5C43FF] hover:to-[#F43F5E] text-white font-black text-[13px] sm:text-[14px] uppercase tracking-wider shadow-[0_8px_25px_rgba(74,58,255,0.7)] flex items-center justify-center gap-2 transform active:scale-95 transition-all cursor-pointer group"
+            >
+              <span>GET 10,000 BONUS UPON DEPOSIT</span>
+              <ArrowRight size={17} strokeWidth={3} className="transform group-hover:translate-x-1 transition-transform" />
+            </button>
+          </div>
         </div>
 
-        {/* Body */}
-        <div className="p-6 sm:p-10 flex-1 flex flex-col items-center justify-center text-center">
-          <div className="w-20 h-20 bg-gradient-to-tr from-[var(--color-gold-light)] to-[#4A3AFF] rounded-full flex items-center justify-center mb-6 shadow-xl shadow-[var(--color-gold-light)]/50">
-            <Sparkles size={36} className="text-white" />
-          </div>
-          
-          <h2 id="modal-title" className="text-3xl sm:text-4xl font-black text-[#0F172A] mb-4 tracking-tight max-w-xl">
-            Welcome to the New TheCashly Experience!
-          </h2>
-          
-          <p className="text-gray-500 text-base sm:text-lg max-w-xl mx-auto mb-8">
-            We've redesigned our platform to give you a more premium, faster, and more rewarding journey. Discover exciting new features and seamless navigation.
-          </p>
-
-          <div className="bg-gray-50 rounded-2xl p-6 sm:p-8 border border-gray-100 max-w-lg w-full mb-8 shadow-sm">
-            <h3 className="font-bold text-[#0F172A] mb-4 text-lg">🚀 What's New?</h3>
-            <ul className="text-sm text-gray-600 text-left space-y-3 font-medium">
-              <li className="flex items-start">
-                <span className="text-emerald-500 mr-3 text-lg leading-none">✓</span>
-                Premium solid design with improved readability
-              </li>
-              <li className="flex items-start">
-                <span className="text-emerald-500 mr-3 text-lg leading-none">✓</span>
-                Lightning-fast dashboard and smoother navigation
-              </li>
-              <li className="flex items-start">
-                <span className="text-emerald-500 mr-3 text-lg leading-none">✓</span>
-                Exclusive high-yield opportunities available now
-              </li>
-            </ul>
-          </div>
-          
-          <button
-            onClick={() => {
-              onClose();
-              navigate('/plans');
-            }}
-            className="w-full max-w-sm py-4 rounded-xl bg-[#4A3AFF] text-white font-bold shadow-lg hover:bg-[#64748B] hover:-translate-y-1 transition-all duration-300 flex items-center justify-center space-x-2 focus:ring-2 focus:ring-offset-2 focus:ring-[var(--color-navy)] focus:outline-none"
-          >
-            <span>Explore Opportunities</span>
-            <ArrowRight size={18} />
-          </button>
-        </div>
-
-        {/* Footer */}
-        <div className="p-6 bg-gray-50 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0 rounded-b-3xl">
-          <Link 
-            to="/services/terms" 
-            onClick={onClose}
-            className="flex items-center space-x-2 text-sm font-medium text-gray-500 hover:text-navy transition-colors"
-          >
-            <Info size={16} />
-            <span>Withdrawal rules & plan terms</span>
-          </Link>
-          
-          <button 
-            onClick={onClose}
-            className="text-sm font-bold text-gray-500 hover:text-navy px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors focus:ring-2 focus:ring-navy focus:outline-none"
-          >
-            Maybe Later
-          </button>
-        </div>
+        {/* Floating Circular Close Button (X) below modal card */}
+        <button
+          onClick={onClose}
+          aria-label="Close Bonus Modal"
+          className="mt-4 w-12 h-12 rounded-full border-2 border-white/50 bg-black/70 backdrop-blur-md text-white flex items-center justify-center shadow-[0_0_20px_rgba(255,255,255,0.25)] hover:scale-110 hover:border-white transition-all cursor-pointer active:scale-90"
+        >
+          <X size={24} strokeWidth={2.4} />
+        </button>
       </div>
     </div>
   );

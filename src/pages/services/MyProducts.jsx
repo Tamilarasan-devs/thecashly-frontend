@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import api from '../../lib/axios';
 import { useAuth } from '../../context/AuthContext';
-import { Package, Star, Calendar, ArrowRight, Hexagon, IndianRupee, TrendingUp } from 'lucide-react';
+import { Package, Star, Calendar, ArrowRight, Hexagon, IndianRupee, TrendingUp, RefreshCw } from 'lucide-react';
 
 const MyProducts = () => {
   const [subs, setSubs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [collectingId, setCollectingId] = useState(null);
   const { fetchUser } = useAuth();
 
   const fetchSubs = () => {
@@ -20,15 +21,23 @@ const MyProducts = () => {
   }, []);
 
   const handleCollect = async (subId) => {
+    if (collectingId) return;
+    setCollectingId(subId);
     try {
       const res = await api.post(`/payments/subscriptions/${subId}/collect`);
       if (res.data.success) {
-        alert(`Successfully collected ₹${(res.data.amount / 100).toFixed(2)}`);
+        if (res.data.amount > 0) {
+          alert(`Successfully collected ₹${(res.data.amount / 100).toFixed(2)}`);
+        } else {
+          alert(res.data.message || 'All eligible returns are already collected!');
+        }
         await fetchUser(); // Refresh global wallet balance
         fetchSubs(); // Refresh local list
       }
     } catch (error) {
-      alert(error.response?.data?.message || 'Failed to collect earnings');
+      alert(error.response?.data?.error || error.response?.data?.message || 'Failed to collect earnings');
+    } finally {
+      setCollectingId(null);
     }
   };
 
@@ -72,12 +81,20 @@ const MyProducts = () => {
                 <div className="flex items-center gap-4 border-b border-gray-100 pb-5">
                   <div className="w-[72px] h-[72px] bg-gradient-to-br from-[#E0D8FF] to-[#F4F2FF] rounded-[20px] flex items-center justify-center relative shadow-inner border border-white overflow-visible">
                     {sub.plan?.productImage?.url ? (
-                      <img src={sub.plan.productImage.url} alt={sub.planSnapshot.name} className="w-full h-full object-cover rounded-[18px] mix-blend-multiply" />
-                    ) : (
-                      <div className="w-[36px] h-[36px] bg-[#6C5DD3] rounded-md rotate-45 flex items-center justify-center relative shadow-sm">
-                        <div className="absolute inset-0 bg-black/10 rounded-md"></div>
-                      </div>
-                    )}
+                      <img 
+                        src={sub.plan.productImage.url} 
+                        alt={sub.planSnapshot?.name || 'Subscribed Product'} 
+                        className="w-full h-full object-cover rounded-[18px]" 
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                          const fallback = e.currentTarget.nextElementSibling;
+                          if (fallback) fallback.classList.remove('hidden');
+                        }}
+                      />
+                    ) : null}
+                    <div className={`w-[36px] h-[36px] bg-[#6C5DD3] rounded-md rotate-45 flex items-center justify-center relative shadow-sm ${sub.plan?.productImage?.url ? 'hidden' : ''}`}>
+                      <div className="absolute inset-0 bg-black/10 rounded-md"></div>
+                    </div>
                     <span className="absolute -bottom-2 -left-0 right-0 mx-auto w-fit bg-[#FBBF24] text-[9px] font-black text-[#0F172A] px-2 py-0.5 rounded shadow-sm border-2 border-white uppercase z-10">
                       NEW
                     </span>
@@ -134,15 +151,24 @@ const MyProducts = () => {
                   {sub.status === 'active' ? (
                     <button 
                       onClick={() => handleCollect(sub._id)}
-                      disabled={!sub.eligibleAmount || sub.eligibleAmount <= 0}
+                      disabled={!sub.eligibleAmount || sub.eligibleAmount <= 0 || collectingId === sub._id}
                       className={`w-full py-3.5 rounded-2xl text-[13px] font-extrabold flex items-center justify-center gap-2 transition-all mt-1 ${
                         sub.eligibleAmount > 0
                           ? 'bg-gradient-to-r from-[#10B981] to-[#059669] text-white shadow-[0_8px_20px_rgba(16,185,129,0.3)] hover:opacity-90'
                           : 'bg-[#F1F5F9] text-[#94A3B8] cursor-not-allowed'
                       }`}
                     >
-                      {sub.eligibleAmount > 0 ? `Claim ₹${(sub.eligibleAmount / 100).toFixed(2)} Now` : 'No Earnings Yet'}
-                      {sub.eligibleAmount > 0 && <ArrowRight size={16} strokeWidth={3} />}
+                      {collectingId === sub._id ? (
+                        <>
+                          <RefreshCw size={15} className="animate-spin" />
+                          <span>Collecting...</span>
+                        </>
+                      ) : (
+                        <>
+                          {sub.eligibleAmount > 0 ? `Claim ₹${(sub.eligibleAmount / 100).toFixed(2)} Now` : 'No Earnings Yet'}
+                          {sub.eligibleAmount > 0 && <ArrowRight size={16} strokeWidth={3} />}
+                        </>
+                      )}
                     </button>
                   ) : (
                     <div className="w-full bg-[#F1F5F9] text-[#64748B] py-3.5 rounded-2xl text-[13px] font-extrabold flex items-center justify-center text-center mt-1">
