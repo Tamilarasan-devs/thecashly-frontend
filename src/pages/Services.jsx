@@ -1,9 +1,19 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Package, Banknote, History, Calendar, HelpCircle, FileText, ChevronRight, LayoutGrid } from 'lucide-react';
+import { Package, Banknote, History, Calendar, HelpCircle, FileText, ChevronRight, LayoutGrid, Gift } from 'lucide-react';
 
 const Services = () => {
   const serviceLinks = [
+    { 
+      name: 'Refer & Earn', 
+      icon: Gift, 
+      path: '/services/refer-and-earn', 
+      desc: 'Invite friends & earn ₹100 per referral',
+      color: 'text-[#EC4899]',
+      bg: 'bg-[#FDF2F8]',
+      border: 'group-hover:border-[#EC4899]',
+      badge: '₹100 Bonus'
+    },
     { 
       name: 'My Products', 
       icon: Package, 
@@ -111,7 +121,14 @@ const Services = () => {
                 <service.icon size={28} strokeWidth={2.5} />
               </div>
               <div>
-                <h3 className="font-extrabold text-[#0F172A] text-[15px] group-hover:text-[#4A3AFF] transition-colors">{service.name}</h3>
+                <div className="flex items-center gap-2">
+                  <h3 className="font-extrabold text-[#0F172A] text-[15px] group-hover:text-[#4A3AFF] transition-colors">{service.name}</h3>
+                  {service.badge && (
+                    <span className="px-2 py-0.5 rounded-full bg-pink-100 text-[#EC4899] text-[10px] font-extrabold uppercase tracking-wider animate-pulse">
+                      {service.badge}
+                    </span>
+                  )}
+                </div>
                 <p className="text-[11px] text-[#64748B] font-semibold mt-0.5">{service.desc}</p>
               </div>
             </div>

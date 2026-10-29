@@ -242,6 +242,32 @@ const Home = () => {
           </Link>
         </div>
 
+        {/* Refer & Earn Banner */}
+        <Link 
+          to="/services/refer-and-earn"
+          className="group relative overflow-hidden rounded-[24px] bg-gradient-to-r from-[#1E1B4B] via-[#312E81] to-[#4338CA] p-4 sm:p-5 text-white shadow-lg flex items-center justify-between transition-all duration-300 hover:shadow-indigo-500/20"
+        >
+          <div className="flex items-center gap-3.5">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white shadow-md shadow-orange-500/30 group-hover:scale-105 transition-transform shrink-0">
+              <Gift size={24} />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="font-extrabold text-sm sm:text-base text-white">Refer & Earn ₹100</span>
+                <span className="px-2 py-0.5 rounded-full bg-amber-400 text-slate-900 text-[10px] font-black uppercase">
+                  Cash Bonus
+                </span>
+              </div>
+              <p className="text-xs text-blue-200 font-medium mt-0.5">
+                Invite friends with your code and get ₹100 instant cash per friend!
+              </p>
+            </div>
+          </div>
+          <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white group-hover:bg-white/20 transition-all shrink-0">
+            <ArrowRight size={16} strokeWidth={2.5} className="group-hover:translate-x-0.5 transition-transform" />
+          </div>
+        </Link>
+
         {/* Your Active Plan Card */}
         {activeSub && (
           <div className="rounded-[28px] overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] bg-white border border-gray-100 mt-4">

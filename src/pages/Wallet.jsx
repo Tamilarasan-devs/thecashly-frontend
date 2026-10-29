@@ -200,8 +200,8 @@ const Wallet = () => {
       return;
     }
 
-    if (numAmount < 100) {
-      setMessage({ text: 'Minimum withdrawal amount is ₹100', type: 'error' });
+    if (numAmount < 200) {
+      setMessage({ text: 'Minimum withdrawal amount is ₹200', type: 'error' });
       return;
     }
 
@@ -482,13 +482,13 @@ const Wallet = () => {
               </div>
               <input
                 type="number"
-                min="100"
+                min="200"
                 step="1"
                 required
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 className="block w-full rounded-2xl border-2 border-gray-100 bg-gray-50/50 py-3.5 pl-9 pr-16 text-lg font-bold text-[#0F172A] focus:border-[#4A3AFF] focus:bg-white focus:outline-none transition"
-                placeholder="Enter amount (min ₹100)"
+                placeholder="Enter amount (min ₹200)"
               />
               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4">
                 <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">INR</span>
@@ -497,7 +497,7 @@ const Wallet = () => {
 
             {/* Quick Amount Chips */}
             <div className="flex flex-wrap gap-2 mt-3">
-              {[100, 500, 1000, 2000, 5000].map((val) => (
+              {[200, 500, 1000, 2000, 5000].map((val) => (
                 <button
                   type="button"
                   key={val}
@@ -514,7 +514,7 @@ const Wallet = () => {
               <button
                 type="button"
                 onClick={() => setAmount(Math.floor(availableEarning).toString())}
-                disabled={availableEarning < 100}
+                disabled={availableEarning < 200}
                 className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-[#F4F2FF] text-[#4A3AFF] border border-[#E0D8FF] hover:bg-[#ECE8FF] transition disabled:opacity-50"
               >
                 Max Balance
@@ -526,20 +526,20 @@ const Wallet = () => {
           <div className="rounded-xl bg-blue-50/70 border border-blue-100 p-3.5 flex items-start gap-2.5 text-xs text-blue-900 font-medium">
             <Info size={16} className="text-blue-600 shrink-0 mt-0.5" />
             <div className="space-y-0.5">
-              <p>• Minimum withdrawal amount is <strong>₹100</strong>.</p>
+              <p>• Minimum withdrawal amount is <strong>₹200</strong>.</p>
               <p>• Requests are reviewed and processed by admin directly to your verified bank account.</p>
             </div>
           </div>
 
           <button
             type="submit"
-            disabled={submitting || availableEarning < 100}
+            disabled={submitting || availableEarning < 200}
             className="w-full rounded-2xl bg-gradient-to-r from-[#4A3AFF] to-[#3B82F6] py-4 font-extrabold text-white text-base shadow-[0_8px_20px_rgba(74,58,255,0.25)] hover:opacity-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             <ArrowDownToLine size={18} />
             <span>
-              {availableEarning < 100 
-                ? 'Insufficient Balance (Min ₹100)' 
+              {availableEarning < 200 
+                ? 'Insufficient Balance (Min ₹200)' 
                 : hasCompleteBankDetails() 
                   ? 'Request Withdrawal' 
                   : 'Add Bank Details & Withdraw'

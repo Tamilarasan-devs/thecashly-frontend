@@ -32,6 +32,8 @@ const AdminUsers = () => {
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Name / Email</th>
               <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Role</th>
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Referral Code</th>
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Referred By</th>
               <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Wallet Balance</th>
               <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Joined</th>
             </tr>
@@ -49,6 +51,21 @@ const AdminUsers = () => {
                   }`}>
                     {u.role}
                   </span>
+                </td>
+                <td className="whitespace-nowrap px-6 py-4">
+                  <span className="font-mono font-bold text-xs px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-100">
+                    {u.referralCode || '-'}
+                  </span>
+                </td>
+                <td className="whitespace-nowrap px-6 py-4 text-xs text-gray-500">
+                  {u.referredBy ? (
+                    <div>
+                      <span className="font-bold text-gray-900">{u.referredBy.name}</span>
+                      <div className="text-[11px] font-mono text-indigo-600">({u.referredBy.referralCode})</div>
+                    </div>
+                  ) : (
+                    <span className="text-gray-400">Direct Signup</span>
+                  )}
                 </td>
                 <td className="whitespace-nowrap px-6 py-4 text-sm font-bold text-[#4A3AFF]">
                   ₹{(u.walletBalance / 100).toFixed(2)}

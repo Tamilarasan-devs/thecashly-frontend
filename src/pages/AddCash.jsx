@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import api from '../lib/axios';
 import { useAuth } from '../context/AuthContext';
 import {
@@ -17,7 +18,11 @@ import {
   Sparkles,
   ArrowUpRight,
   ExternalLink,
-  Info
+  Info,
+  Package,
+  TrendingUp,
+  Zap,
+  Star
 } from 'lucide-react';
 
 const getImageUrl = (url) => {
@@ -58,12 +63,15 @@ const PaytmIcon = ({ className = "w-6 h-6" }) => (
 
 const AddCash = () => {
   const { user, fetchUser } = useAuth();
+  const [searchParams] = useSearchParams();
   const [amount, setAmount] = useState('');
   const [utr, setUtr] = useState('');
   const [paymentSetting, setPaymentSetting] = useState(null);
   const [shuffling, setShuffling] = useState(false);
   const [userTopUps, setUserTopUps] = useState([]);
   const [loadingSetting, setLoadingSetting] = useState(true);
+  const [plans, setPlans] = useState([]);
+  const [loadingPlans, setLoadingPlans] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [copied, setCopied] = useState(false);
   const [statusMsg, setStatusMsg] = useState({ text: '', type: '' });
@@ -86,7 +94,46 @@ const AddCash = () => {
   useEffect(() => {
     fetchPaymentSettings();
     fetchUserTopUps();
+    fetchPlans();
   }, []);
+
+  const fetchPlans = async () => {
+    setLoadingPlans(true);
+    try {
+      const res = await api.get('/plans');
+      if (res.data?.success && Array.isArray(res.data.data)) {
+        const activePlans = res.data.data.filter(
+          (p) => p.status === 'active' && !p.isComingSoon && p.planType !== 'coming_soon'
+        );
+        setPlans(activePlans);
+
+        const qPlanId = searchParams.get('planId');
+        const qAmount = searchParams.get('amount');
+
+        if (qPlanId) {
+          const matched = activePlans.find((p) => p._id === qPlanId);
+          if (matched) {
+            setAmount(String(matched.initialPayment / 100));
+            return;
+          }
+        }
+
+        if (qAmount && !isNaN(Number(qAmount))) {
+          setAmount(String(qAmount));
+          return;
+        }
+
+        // If no query param and no amount set yet, pre-select the first active plan
+        if (activePlans.length > 0) {
+          setAmount(String(activePlans[0].initialPayment / 100));
+        }
+      }
+    } catch (err) {
+      console.error('Failed to load plans for AddCash', err);
+    } finally {
+      setLoadingPlans(false);
+    }
+  };
 
   const fetchPaymentSettings = async (isRotate = false) => {
     if (isRotate) setShuffling(true);
@@ -126,23 +173,25 @@ const AddCash = () => {
   /**
    * Generates UPI URL with exact amount formatted to 2 decimals.
    * Tailored for Android Intent, iOS schemes, and universal UPI apps.
+   * Keeps raw literal '@' in pa so UPI apps (PhonePe, Paytm) parse the VPA correctly.
    */
   const getUpiUrl = (appScheme = '', customAmt = null) => {
-    const upiId = currentChannel.upiId || paymentSetting?.upiId || 'cashly@upi';
-    const upiName = currentChannel.upiName || paymentSetting?.upiName || 'The Cashly Payments';
+    const rawUpiId = (currentChannel?.upiId || paymentSetting?.upiId || 'cashly@upi').trim();
+    const upiName = (currentChannel?.upiName || paymentSetting?.upiName || 'The Cashly Payments').trim();
     const amtToUse = customAmt !== null ? customAmt : amount;
     const num = parseFloat(amtToUse);
     const amountParam = !isNaN(num) && num > 0 ? `&am=${num.toFixed(2)}` : '';
     const note = 'The Cashly Deposit';
 
-    const baseParams = `pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(upiName)}${amountParam}&cu=INR&tn=${encodeURIComponent(note)}`;
+    // IMPORTANT: Keep literal '@' in pa for PhonePe and Paytm to directly detect our given UPI ID
+    const baseParams = `pa=${rawUpiId}&pn=${encodeURIComponent(upiName)}${amountParam}&cu=INR&tn=${encodeURIComponent(note)}`;
 
     const ua = typeof navigator !== 'undefined' ? (navigator.userAgent || '') : '';
     const isAndroid = /android/i.test(ua);
 
     if (appScheme === 'phonepe') {
       if (isAndroid) {
-        // Android Intent directly targeting PhonePe app package
+        // Android Intent directly targeting PhonePe app package with our given UPI ID
         return `intent://pay?${baseParams}#Intent;scheme=upi;package=com.phonepe.app;end`;
       }
       // iOS / Universal PhonePe custom scheme
@@ -151,7 +200,7 @@ const AddCash = () => {
 
     if (appScheme === 'paytm') {
       if (isAndroid) {
-        // Android Intent directly targeting Paytm app package
+        // Android Intent directly targeting Paytm app package with our given UPI ID
         return `intent://pay?${baseParams}#Intent;scheme=upi;package=net.one97.paytm;end`;
       }
       // iOS / Universal Paytm scheme (paytmmp://)
@@ -162,7 +211,7 @@ const AddCash = () => {
       if (isAndroid) {
         return `intent://pay?${baseParams}#Intent;scheme=upi;package=com.google.android.apps.nbu.paisa.user;end`;
       }
-      return `tez://upi/pay?${baseParams}`;
+      return `gpay://upi/pay?${baseParams}`;
     }
 
     // Generic standard UPI for any app
@@ -170,25 +219,18 @@ const AddCash = () => {
   };
 
   /**
-   * Triggers PhonePe or Paytm redirection with pre-filled amount.
-   * If amount is not entered, prompts and focuses amount input.
+   * Triggers PhonePe or Paytm redirection with our given UPI ID.
+   * If amount is not entered, defaults to ₹500 so user is immediately directed without error.
    */
   const handleAppPay = (appScheme) => {
-    const numAmount = parseFloat(amount);
+    let amtToUse = amount;
+    let numAmount = parseFloat(amtToUse);
 
+    // If amount is not entered yet or invalid, default to 500 or minimum so user is directly redirected
     if (!amount || isNaN(numAmount) || numAmount < minAmount) {
-      setStatusMsg({
-        text: `Please enter an amount of at least ₹${minAmount} first to pay via ${
-          appScheme === 'phonepe' ? 'PhonePe' : appScheme === 'paytm' ? 'Paytm' : 'UPI'
-        }.`,
-        type: 'error'
-      });
-      const inputEl = document.getElementById('deposit-amount-input');
-      if (inputEl) {
-        inputEl.focus();
-        inputEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
-      return;
+      amtToUse = '500';
+      numAmount = 500;
+      setAmount('500');
     }
 
     if (numAmount > maxAmount) {
@@ -199,38 +241,41 @@ const AddCash = () => {
       return;
     }
 
-    // Automatically copy UPI ID to clipboard as a helpful backup
-    if (currentChannel.upiId) {
+    const rawUpiId = (currentChannel?.upiId || paymentSetting?.upiId || 'cashly@upi').trim();
+    const upiName = (currentChannel?.upiName || paymentSetting?.upiName || 'The Cashly Payments').trim();
+
+    // Automatically copy our given UPI ID to clipboard as a helpful backup
+    if (rawUpiId) {
       try {
-        navigator.clipboard.writeText(currentChannel.upiId);
+        navigator.clipboard.writeText(rawUpiId);
       } catch (err) {}
     }
 
     const appName = appScheme === 'phonepe' ? 'PhonePe' : appScheme === 'paytm' ? 'Paytm' : 'UPI App';
-    const targetUrl = getUpiUrl(appScheme);
-    const genericUrl = getUpiUrl('generic');
+    const targetUrl = getUpiUrl(appScheme, amtToUse);
+    const genericUrl = getUpiUrl('generic', amtToUse);
+    const directSchemeUrl = appScheme === 'phonepe' 
+      ? `phonepe://pay?pa=${rawUpiId}&pn=${encodeURIComponent(upiName)}&am=${numAmount.toFixed(2)}&cu=INR`
+      : appScheme === 'paytm'
+        ? `paytmmp://pay?pa=${rawUpiId}&pn=${encodeURIComponent(upiName)}&am=${numAmount.toFixed(2)}&cu=INR`
+        : genericUrl;
 
     setStatusMsg({
-      text: `Opening ${appName} to pay ₹${numAmount.toLocaleString()}...`,
+      text: `Opening ${appName} to pay ₹${numAmount.toLocaleString()} to ${rawUpiId}...`,
       type: 'info',
       appName,
       amountPaid: numAmount,
+      upiId: rawUpiId,
       primaryUrl: targetUrl,
+      directSchemeUrl,
       genericUrl
     });
 
-    // Execute redirection via user gesture
+    // Directly trigger redirection with our given UPI ID
     try {
-      const a = document.createElement('a');
-      a.href = targetUrl;
-      a.rel = 'noopener noreferrer';
-      document.body.appendChild(a);
-      a.click();
-      setTimeout(() => {
-        if (document.body.contains(a)) document.body.removeChild(a);
-      }, 500);
-    } catch {
       window.location.href = targetUrl;
+    } catch {
+      window.location.assign(targetUrl);
     }
   };
 
@@ -319,6 +364,24 @@ const AddCash = () => {
     getUpiUrl('generic')
   )}`;
 
+  const matchedPlan = plans.find(
+    (p) => Number(amount) > 0 && Math.round(p.initialPayment / 100) === Math.round(Number(amount))
+  );
+
+  const planOptions = plans.length > 0
+    ? [...plans]
+        .sort((a, b) => a.initialPayment - b.initialPayment)
+        .map((p) => ({
+          id: p._id,
+          price: p.initialPayment / 100,
+          name: p.name
+        }))
+    : quickAmounts.map((amt) => ({
+        id: String(amt),
+        price: amt,
+        name: ''
+      }));
+
   return (
     <div className="space-y-6 max-w-3xl mx-auto pb-12">
       {/* Header */}
@@ -381,14 +444,22 @@ const AddCash = () => {
             </div>
 
             {statusMsg.primaryUrl && (
-              <div className="flex items-center gap-2 shrink-0">
+              <div className="flex flex-wrap items-center gap-2 shrink-0">
                 <a
                   href={statusMsg.primaryUrl}
                   className="px-3.5 py-1.5 bg-[#4A3AFF] text-white text-xs font-bold rounded-xl hover:bg-[#3D2EE0] transition shadow-sm inline-flex items-center gap-1.5 cursor-pointer active:scale-95"
                 >
-                  <span>Re-open {statusMsg.appName}</span>
+                  <span>Open {statusMsg.appName}</span>
                   <ArrowUpRight size={13} />
                 </a>
+                {statusMsg.directSchemeUrl && statusMsg.directSchemeUrl !== statusMsg.primaryUrl && (
+                  <a
+                    href={statusMsg.directSchemeUrl}
+                    className="px-3 py-1.5 bg-purple-600 text-white text-xs font-bold rounded-xl hover:bg-purple-700 transition text-center"
+                  >
+                    Direct App Link
+                  </a>
+                )}
                 <a
                   href={statusMsg.genericUrl}
                   className="px-3 py-1.5 bg-white border border-gray-200 text-gray-700 text-xs font-bold rounded-xl hover:bg-gray-50 transition text-center"
@@ -435,30 +506,44 @@ const AddCash = () => {
               />
             </div>
 
-            {/* Quick Amount Select Chips */}
+            {/* Plan Prices Select Chips (Replaces 100, 500, 1000) */}
             <div className="flex items-center gap-2 mt-3 overflow-x-auto pb-1">
               <span className="text-xs font-bold text-gray-400 uppercase tracking-wider shrink-0 mr-1">
-                Quick:
+                Plan Prices:
               </span>
-              {quickAmounts.map((amt) => {
-                const isSelected = Number(amount) === amt;
+              {planOptions.map((item) => {
+                const isSelected = Number(amount) === item.price;
                 return (
                   <button
-                    key={amt}
+                    key={item.id}
                     type="button"
-                    onClick={() => setAmount(String(amt))}
-                    className={`px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition shrink-0 active:scale-95 cursor-pointer flex items-center gap-1 ${
+                    onClick={() => setAmount(String(item.price))}
+                    className={`px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition shrink-0 active:scale-95 cursor-pointer flex items-center gap-1.5 ${
                       isSelected
                         ? 'bg-[#4A3AFF] text-white shadow-md shadow-[#4A3AFF]/25 ring-2 ring-[#4A3AFF]/20'
                         : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
                     }`}
                   >
                     {isSelected && <Check size={13} strokeWidth={3} />}
-                    <span>+₹{amt}</span>
+                    <span>₹{item.price.toLocaleString('en-IN')}</span>
+                    {item.name && (
+                      <span className={`text-[10px] font-semibold ${isSelected ? 'text-white/80' : 'text-gray-500'}`}>
+                        ({item.name})
+                      </span>
+                    )}
                   </button>
                 );
               })}
             </div>
+
+            {matchedPlan && (
+              <p className="mt-2.5 text-xs font-bold text-emerald-700 flex items-center gap-1.5">
+                <CheckCircle2 size={13} />
+                <span>
+                  Matches <strong>{matchedPlan.name}</strong> • Earns ₹{(matchedPlan.dailyAmount / 100).toLocaleString('en-IN')}/day for {matchedPlan.durationDays} days
+                </span>
+              </p>
+            )}
           </div>
         </div>
 
@@ -513,6 +598,9 @@ const AddCash = () => {
                 <span className="text-xl font-black text-white block tracking-tight">
                   PhonePe
                 </span>
+                <span className="text-[11px] font-mono font-bold text-amber-300 block truncate mt-0.5">
+                  To: {currentChannel?.upiId || 'cashly@upi'}
+                </span>
 
                 {amount && Number(amount) >= minAmount ? (
                   <div className="mt-2.5 inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-amber-400 text-slate-950 font-black text-xs shadow-sm">
@@ -520,15 +608,15 @@ const AddCash = () => {
                     <ArrowRight size={13} strokeWidth={3} />
                   </div>
                 ) : (
-                  <span className="text-xs font-semibold text-purple-200/80 block mt-1">
-                    Tap to launch with amount
+                  <span className="text-xs font-semibold text-purple-200/90 block mt-2">
+                    Tap to launch directly
                   </span>
                 )}
               </div>
 
               <div className="mt-3 pt-3 border-t border-white/10 flex items-center justify-between text-[11px] font-bold text-purple-200">
-                <span>Opens PhonePe app</span>
-                <ArrowUpRight size={15} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                <span className="truncate mr-2">Direct to {currentChannel?.upiId || 'PhonePe'}</span>
+                <ArrowUpRight size={15} className="shrink-0 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
               </div>
             </button>
 
@@ -554,6 +642,9 @@ const AddCash = () => {
                 <span className="text-xl font-black text-white block tracking-tight">
                   Paytm
                 </span>
+                <span className="text-[11px] font-mono font-bold text-[#00BAF2] block truncate mt-0.5">
+                  To: {currentChannel?.upiId || 'cashly@upi'}
+                </span>
 
                 {amount && Number(amount) >= minAmount ? (
                   <div className="mt-2.5 inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-[#00BAF2] text-slate-950 font-black text-xs shadow-sm">
@@ -561,15 +652,15 @@ const AddCash = () => {
                     <ArrowRight size={13} strokeWidth={3} />
                   </div>
                 ) : (
-                  <span className="text-xs font-semibold text-cyan-200/80 block mt-1">
-                    Tap to launch with amount
+                  <span className="text-xs font-semibold text-cyan-200/90 block mt-2">
+                    Tap to launch directly
                   </span>
                 )}
               </div>
 
               <div className="mt-3 pt-3 border-t border-white/10 flex items-center justify-between text-[11px] font-bold text-cyan-200">
-                <span>Opens Paytm app</span>
-                <ArrowUpRight size={15} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                <span className="truncate mr-2">Direct to {currentChannel?.upiId || 'Paytm'}</span>
+                <ArrowUpRight size={15} className="shrink-0 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
               </div>
             </button>
           </div>

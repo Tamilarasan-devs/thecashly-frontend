@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import api from "../lib/axios";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -32,6 +32,15 @@ export default function AuthPage() {
     referralCode: ""
   });
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get('ref') || params.get('referral');
+    if (ref) {
+      setSignupData(prev => ({ ...prev, referralCode: ref.toUpperCase() }));
+      setActiveTab('signup');
+    }
+  }, []);
+
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -56,14 +65,22 @@ export default function AuthPage() {
     setIsLoading(true);
     setErrorMsg("");
     try {
-      const response = await api.post('/auth/register', signupData);
+      const emailVal = signupData.mobileNumber.includes('@')
+        ? signupData.mobileNumber
+        : `${signupData.username.toLowerCase().replace(/[^a-z0-9]/g, '') || 'user'}@cashly.com`;
+      const response = await api.post('/auth/register', {
+        name: signupData.username,
+        email: emailVal,
+        password: signupData.password,
+        referralCode: signupData.referralCode?.trim()?.toUpperCase() || undefined
+      });
       localStorage.setItem("user", JSON.stringify(response.data));
-      if (response.data.token) {
-        localStorage.setItem("token", response.data.token);
+      if (response.data.data?.token || response.data.token) {
+        localStorage.setItem("token", response.data.data?.token || response.data.token);
       }
       navigate("/home");
     } catch (err) {
-      setErrorMsg(err.response?.data?.message || "Registration failed. Please try again.");
+      setErrorMsg(err.response?.data?.error || err.response?.data?.message || "Registration failed. Please try again.");
     } finally {
       setIsLoading(false);
     }

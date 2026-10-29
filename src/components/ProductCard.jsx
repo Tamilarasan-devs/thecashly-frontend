@@ -80,6 +80,8 @@ const ProductCard = ({ plan, isPurchasing, onPurchase }) => {
             <img 
               src={plan.productImage.url} 
               alt={plan.name} 
+              loading="lazy"
+              decoding="async"
               className={`absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105 ${
                 isComingSoon ? 'opacity-80 grayscale-[20%]' : 'opacity-100'
               }`}

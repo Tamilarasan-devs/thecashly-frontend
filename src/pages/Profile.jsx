@@ -21,7 +21,10 @@ import {
   Sparkles,
   Smartphone,
   Pencil,
-  History
+  History,
+  Gift,
+  Copy,
+  Share2
 } from 'lucide-react';
 import api from '../lib/axios';
 
@@ -34,6 +37,16 @@ const Profile = () => {
   const [activeModal, setActiveModal] = useState(null); // 'name' | 'password' | 'bank' | 'privacy' | 'settings'
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState({ text: '', type: '' });
+  const [copiedRef, setCopiedRef] = useState(false);
+
+  const handleCopyReferral = (e) => {
+    e?.stopPropagation();
+    if (user?.referralCode) {
+      navigator.clipboard.writeText(user.referralCode);
+      setCopiedRef(true);
+      setTimeout(() => setCopiedRef(false), 2000);
+    }
+  };
 
   // Form states
   const [profileForm, setProfileForm] = useState({ name: user?.name || '', email: user?.email || '' });
@@ -341,8 +354,76 @@ const Profile = () => {
           </button>
         </div>
 
+        {/* Refer & Earn Feature Card */}
+        <div 
+          onClick={() => navigate('/services/refer-and-earn')}
+          className="group relative overflow-hidden rounded-[24px] p-5 bg-gradient-to-r from-pink-500/10 via-purple-500/10 to-indigo-500/10 border border-pink-200/70 hover:border-pink-300 shadow-[0_8px_30px_rgb(0,0,0,0.03)] transition-all cursor-pointer"
+        >
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3.5">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-pink-500 to-rose-500 text-white flex items-center justify-center shadow-md shadow-pink-500/25 shrink-0 group-hover:scale-105 transition-transform">
+                <Gift size={24} />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="font-extrabold text-[#0F172A] text-sm sm:text-base">Refer & Earn ₹100</span>
+                  <span className="px-2 py-0.5 rounded-full bg-pink-100 text-pink-700 text-[10px] font-black uppercase">
+                    Bonus
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="text-xs font-mono font-black text-[#4A3AFF] bg-white px-2 py-0.5 rounded-lg border border-indigo-100">
+                    {user?.referralCode || 'CASHLY'}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleCopyReferral}
+                    className="inline-flex items-center gap-1 text-[11px] font-bold text-gray-500 hover:text-[#4A3AFF] transition p-1"
+                    title="Copy Referral Code"
+                  >
+                    {copiedRef ? <Check size={13} className="text-emerald-600" /> : <Copy size={13} />}
+                    <span>{copiedRef ? 'Copied' : 'Copy'}</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className="hidden sm:inline-block text-xs font-bold text-[#4A3AFF]">
+                Invite Now
+              </span>
+              <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-gray-400 group-hover:text-[#4A3AFF] shadow-xs group-hover:translate-x-1 transition-all">
+                <ChevronRight size={16} strokeWidth={3} />
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* 4. Action Menu Rows Card */}
         <div className="bg-white rounded-[24px] shadow-[0_8px_30px_rgb(0,0,0,0.03)] border border-gray-100/80 overflow-hidden divide-y divide-gray-50">
+          
+          {/* Refer & Earn Menu Row */}
+          <button 
+            type="button"
+            onClick={() => navigate('/services/refer-and-earn')}
+            className="w-full flex items-center justify-between p-4 text-left transition hover:bg-gray-50 group cursor-pointer"
+          >
+            <div className="flex items-center gap-3.5">
+              <div className="w-11 h-11 rounded-2xl bg-[#FDF2F8] text-[#EC4899] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                <Gift size={20} />
+              </div>
+              <div>
+                <span className="font-extrabold text-[#0F172A] text-sm block">Refer & Earn</span>
+                <span className="text-xs text-[#64748B] font-medium">Invite friends and earn ₹100 per referral</span>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] font-black text-pink-600 bg-pink-50 px-2.5 py-0.5 rounded-full uppercase">
+                Earn ₹100
+              </span>
+              <ChevronRight size={18} className="text-gray-300 group-hover:text-[#EC4899] transition-colors" />
+            </div>
+          </button>
           
           {/* Bank & Payout Details */}
           <button 

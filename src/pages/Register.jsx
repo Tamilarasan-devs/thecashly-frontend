@@ -1,19 +1,52 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Wallet, Mail, Lock, User, ArrowRight, Eye, EyeOff, AlertCircle, X, Loader2 } from 'lucide-react';
+import { Wallet, Mail, Lock, User, ArrowRight, Eye, EyeOff, AlertCircle, X, Loader2, Ticket, CheckCircle2, Gift } from 'lucide-react';
+import api from '../lib/axios';
 
 const Register = () => {
+  const [searchParams] = useSearchParams();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [referralCode, setReferralCode] = useState(searchParams.get('ref') || searchParams.get('referral') || '');
+  const [refInfo, setRefInfo] = useState({ valid: null, checking: false, referrerName: '' });
   const [error, setError] = useState('');
-  const [fieldError, setFieldError] = useState(''); // 'name' | 'email' | 'password' | 'general' | ''
+  const [fieldError, setFieldError] = useState(''); // 'name' | 'email' | 'password' | 'referralCode' | 'general' | ''
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [shakeKey, setShakeKey] = useState(0);
   const { register } = useAuth();
   const navigate = useNavigate();
+
+  // Validate referral code when URL param is present or when user stops typing
+  useEffect(() => {
+    const code = referralCode.trim().toUpperCase();
+    if (!code) {
+      setRefInfo({ valid: null, checking: false, referrerName: '' });
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      setRefInfo(prev => ({ ...prev, checking: true }));
+      try {
+        const res = await api.get(`/auth/referral/validate/${encodeURIComponent(code)}`);
+        if (res.data?.valid) {
+          setRefInfo({ valid: true, checking: false, referrerName: res.data.data.referrerName });
+          if (fieldError === 'referralCode') {
+            setFieldError('');
+            setError('');
+          }
+        } else {
+          setRefInfo({ valid: false, checking: false, referrerName: '' });
+        }
+      } catch (err) {
+        setRefInfo({ valid: false, checking: false, referrerName: '' });
+      }
+    }, 400);
+
+    return () => clearTimeout(timer);
+  }, [referralCode]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -47,7 +80,7 @@ const Register = () => {
 
     setLoading(true);
     try {
-      const res = await register(name.trim(), email.trim(), password);
+      const res = await register(name.trim(), email.trim(), password, referralCode.trim().toUpperCase());
       if (res.success) {
         navigate('/');
       }
@@ -231,6 +264,76 @@ const Register = () => {
                 </button>
               </div>
               {fieldError === 'password' && (
+                <p className="text-xs font-semibold text-red-600 flex items-center gap-1 mt-1 ml-1">
+                  <AlertCircle size={13} /> {error}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between ml-1">
+                <label className="block text-xs font-bold text-gray-800 uppercase tracking-wider">
+                  Referral Code <span className="lowercase font-medium text-gray-400">(optional)</span>
+                </label>
+                <span className="text-[11px] font-bold text-emerald-600 flex items-center gap-1">
+                  <Gift size={12} /> Get ₹100 Bonus
+                </span>
+              </div>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center justify-center pointer-events-none">
+                  <Ticket size={18} className={
+                    fieldError === 'referralCode' 
+                      ? 'text-red-500' 
+                      : refInfo.valid 
+                        ? 'text-emerald-500' 
+                        : 'text-gray-500'
+                  } />
+                </div>
+                <input 
+                  type="text" 
+                  placeholder="e.g. CASH9F2A"
+                  maxLength={15}
+                  className={`w-full uppercase bg-white/60 border ${
+                    fieldError === 'referralCode' || refInfo.valid === false
+                      ? 'border-red-400 bg-red-50/40 ring-2 ring-red-100 focus:border-red-500 focus:ring-red-200' 
+                      : refInfo.valid
+                        ? 'border-emerald-400 bg-emerald-50/30 ring-2 ring-emerald-100 focus:border-emerald-500 focus:ring-emerald-200'
+                        : 'border-gray-300 focus:border-[#4A3AFF]'
+                  } text-gray-900 placeholder-gray-400 rounded-2xl py-3.5 pl-11 pr-10 focus:outline-none focus:bg-white transition-all font-semibold tracking-wider backdrop-blur-sm shadow-sm`}
+                  value={referralCode}
+                  onChange={(e) => {
+                    setReferralCode(e.target.value.toUpperCase());
+                    if (fieldError === 'referralCode') {
+                      setFieldError('');
+                      setError('');
+                    }
+                  }}
+                  autoComplete="off"
+                />
+                {refInfo.checking && (
+                  <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                    <Loader2 size={16} className="animate-spin text-gray-400" />
+                  </div>
+                )}
+                {refInfo.valid && !refInfo.checking && (
+                  <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-emerald-500">
+                    <CheckCircle2 size={18} />
+                  </div>
+                )}
+              </div>
+
+              {refInfo.valid && (
+                <p className="text-xs font-semibold text-emerald-700 flex items-center gap-1.5 mt-1 ml-1 bg-emerald-50/80 px-2.5 py-1 rounded-xl border border-emerald-200">
+                  <CheckCircle2 size={13} className="text-emerald-600" />
+                  Code applied! Referred by <span className="font-extrabold">{refInfo.referrerName}</span>
+                </p>
+              )}
+              {refInfo.valid === false && !refInfo.checking && referralCode.trim() && (
+                <p className="text-xs font-semibold text-red-600 flex items-center gap-1 mt-1 ml-1">
+                  <AlertCircle size={13} /> Invalid referral code. Please check or leave blank.
+                </p>
+              )}
+              {fieldError === 'referralCode' && (
                 <p className="text-xs font-semibold text-red-600 flex items-center gap-1 mt-1 ml-1">
                   <AlertCircle size={13} /> {error}
                 </p>

@@ -42,7 +42,7 @@ const ProductDetails = () => {
 
     if (user.walletBalance < plan.initialPayment) {
       alert(`Insufficient wallet balance. You need ₹${((plan.initialPayment - user.walletBalance) / 100).toFixed(2)} more to buy ${plan.name}.`);
-      navigate('/add-cash');
+      navigate(`/add-cash?planId=${plan._id}&amount=${plan.initialPayment / 100}`);
       return;
     }
 
