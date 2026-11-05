@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useModal } from '../context/ModalContext';
 import { Link, useNavigate } from 'react-router-dom';
 import { Bell, User, Eye, Wallet, Package, Calendar, ArrowRight, Star, Rocket, Gift, Sparkles, Clock, RefreshCw } from 'lucide-react';
 import api from '../lib/axios';
@@ -8,6 +9,7 @@ import AnnouncementModal from '../components/AnnouncementModal';
 
 const Home = () => {
   const { user, fetchUser } = useAuth();
+  const { showAlert, showConfirm } = useModal();
   const navigate = useNavigate();
   const [activeSub, setActiveSub] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -56,36 +58,38 @@ const Home = () => {
 
   const handlePurchase = async (plan) => {
     if (plan.status === 'hidden' || plan.status === 'draft') {
-      alert('This plan is currently hidden and locked.');
+      await showAlert('This plan is currently hidden and locked.', 'warning');
       return;
     }
 
     if (plan.isComingSoon || plan.planType === 'coming_soon') {
-      alert('This plan is coming soon and cannot be purchased yet.');
+      await showAlert('This plan is coming soon and cannot be purchased yet.', 'info');
       return;
     }
 
     // Client side check
     if (user.walletBalance < plan.initialPayment) {
-      alert(`Insufficient wallet balance. You need ₹${((plan.initialPayment - user.walletBalance) / 100).toFixed(2)} more to buy ${plan.name}.`);
+      await showAlert(`Insufficient wallet balance. You need ₹${((plan.initialPayment - user.walletBalance) / 100).toFixed(2)} more to buy ${plan.name}.`, 'warning');
       navigate('/add-cash');
       return;
     }
 
-    if (!window.confirm(`Are you sure you want to purchase the ${plan.name} plan for ₹${(plan.initialPayment / 100).toFixed(2)}?`)) {
-      return;
-    }
+    const confirmed = await showConfirm(
+      `Are you sure you want to purchase the ${plan.name} plan for ₹${(plan.initialPayment / 100).toFixed(2)}?`,
+      { title: 'Confirm Investment', confirmText: 'Buy Plan' }
+    );
+    if (!confirmed) return;
 
     setPurchasing(plan._id);
     try {
       const res = await api.post('/payments/purchase', { planId: plan._id });
       if (res.data.success) {
-        alert('Product purchased successfully!');
+        await showAlert('Product purchased successfully!', 'success');
         await fetchUser();
         await fetchData();
       }
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to purchase product');
+      await showAlert(err.response?.data?.error || 'Failed to purchase product', 'error');
     } finally {
       setPurchasing(null);
     }
@@ -98,16 +102,16 @@ const Home = () => {
       const res = await api.post(`/payments/subscriptions/${id}/collect`);
       if (res.data.success) {
         if (res.data.amount > 0) {
-          alert(`Successfully collected ₹${(res.data.amount / 100).toFixed(2)} to your wallet!`);
+          await showAlert(`Successfully collected ₹${(res.data.amount / 100).toFixed(2)} to your wallet!`, 'success');
         } else {
-          alert(res.data.message || 'No pending returns to collect right now.');
+          await showAlert(res.data.message || 'No pending returns to collect right now.', 'info');
         }
         // Refresh everything to reflect the new balance and updated plan numbers
         await fetchUser();
         await fetchData();
       }
     } catch (error) {
-      alert(error.response?.data?.error || error.response?.data?.message || 'Failed to collect earnings');
+      await showAlert(error.response?.data?.error || error.response?.data?.message || 'Failed to collect earnings', 'error');
     } finally {
       setCollecting(false);
     }

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import api from '../../lib/axios';
+import { useModal } from '../../context/ModalContext';
 import { 
   Headphones, 
   MessageSquare, 
@@ -28,6 +29,7 @@ const CATEGORIES = [
 ];
 
 const Support = () => {
+  const { showAlert } = useModal();
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -110,7 +112,7 @@ const Support = () => {
         await fetchTickets();
       }
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to send reply');
+      await showAlert(err.response?.data?.error || 'Failed to send reply', 'error');
     } finally {
       setReplyingId(null);
     }

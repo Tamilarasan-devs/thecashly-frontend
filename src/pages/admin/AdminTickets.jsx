@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../lib/axios';
+import { useModal } from '../../context/ModalContext';
 import { Mail, CheckCircle, XCircle } from 'lucide-react';
 
 const AdminTickets = () => {
+  const { showAlert } = useModal();
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTicket, setActiveTicket] = useState(null);
@@ -33,9 +35,10 @@ const AdminTickets = () => {
       });
       setActiveTicket(null);
       setReplyMsg('');
+      await showAlert('Ticket status and response saved successfully!', 'success');
       fetchTickets();
     } catch (err) {
-      alert('Failed to update ticket');
+      await showAlert('Failed to update ticket. Please try again.', 'error');
     }
   };
 

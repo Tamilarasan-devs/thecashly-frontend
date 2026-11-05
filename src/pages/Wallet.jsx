@@ -68,11 +68,12 @@ const Wallet = () => {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   useEffect(() => {
+    fetchUser?.();
     fetchWithdrawals();
     if (user?.payoutDetails) {
       prefillBankForm(user.payoutDetails);
     }
-  }, [user]);
+  }, []);
 
   useEffect(() => {
     if (window.location.hash === '#withdrawals' || window.location.hash === '#history') {
@@ -257,15 +258,15 @@ const Wallet = () => {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-extrabold text-[#0F172A] tracking-tight">Wallet & Withdrawals</h1>
-          <p className="text-[#64748B] text-sm font-medium mt-1">Manage bank payout details and request earnings withdrawal</p>
+          <h1 className="text-3xl font-black text-[#090A0F] tracking-tight">Wallet & Withdrawals</h1>
+          <p className="text-[#1E293B] text-sm font-semibold mt-1">Manage bank payout details and request earnings withdrawal</p>
         </div>
         <div className="flex items-center gap-2">
           <Link 
             to="/add-cash" 
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-white border border-gray-200 text-sm font-bold text-[#0F172A] hover:bg-gray-50 transition shadow-sm"
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-white border border-gray-300 text-sm font-bold text-[#090A0F] hover:bg-orange-50 hover:border-orange-300 transition shadow-sm"
           >
-            <WalletIcon size={16} className="text-[#4A3AFF]" />
+            <WalletIcon size={16} className="text-[#EA580C]" />
             <span>Add Cash</span>
           </Link>
           <button
@@ -273,7 +274,7 @@ const Wallet = () => {
               if (user?.payoutDetails) prefillBankForm(user.payoutDetails);
               setShowBankModal(true);
             }}
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#4A3AFF] text-white text-sm font-bold hover:bg-[#3B82F6] transition shadow-md shadow-[#4A3AFF]/20"
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#EA580C] to-[#EF4444] text-white text-sm font-bold hover:brightness-105 transition shadow-md shadow-orange-500/20"
           >
             <Building2 size={16} />
             <span>{hasCompleteBankDetails() ? 'Edit Bank Details' : 'Add Bank Account'}</span>
@@ -284,17 +285,17 @@ const Wallet = () => {
       {/* Balance Cards */}
       <div className="grid gap-4 sm:grid-cols-2">
         {/* Earning Balance (Withdrawal Eligible) */}
-        <div className="relative overflow-hidden rounded-[26px] bg-gradient-to-br from-[#4A3AFF] via-[#3B82F6] to-[#06B6D4] p-7 text-white shadow-xl shadow-[#4A3AFF]/15">
+        <div className="relative overflow-hidden rounded-[26px] bg-gradient-to-br from-[#EA580C] via-[#F97316] to-[#EF4444] p-7 text-white shadow-xl shadow-orange-500/20">
           <div className="absolute top-[-20%] right-[-10%] w-48 h-48 bg-white/10 rounded-full blur-2xl"></div>
           <div className="relative z-10 flex items-start justify-between">
             <div>
-              <div className="inline-flex items-center gap-1.5 bg-white/15 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold mb-3">
-                <CheckCircle2 size={13} className="text-emerald-300" />
+              <div className="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold mb-3">
+                <CheckCircle2 size={13} className="text-white" />
                 <span>Eligible for Payout</span>
               </div>
-              <p className="text-xs uppercase tracking-wider text-white/80 font-bold">Available Earning Balance</p>
+              <p className="text-xs uppercase tracking-wider text-white/90 font-bold">Available Earning Balance</p>
               <h2 className="mt-1 text-3xl sm:text-4xl font-extrabold tracking-tight">₹{availableEarning.toFixed(2)}</h2>
-              <p className="mt-3 text-xs text-white/70">Daily returns and profits eligible for direct bank transfer.</p>
+              <p className="mt-3 text-xs text-white/80">Daily returns and profits eligible for direct bank transfer.</p>
             </div>
             <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center shrink-0">
               <ArrowDownToLine size={24} className="text-white" />
@@ -303,28 +304,26 @@ const Wallet = () => {
         </div>
 
         {/* Deposit Wallet Balance */}
-        <div className="relative overflow-hidden rounded-[26px] bg-[#0F172A] p-7 text-white shadow-xl border border-gray-800">
-          <div className="absolute bottom-[-20%] left-[-10%] w-48 h-48 bg-[#4A3AFF]/20 rounded-full blur-2xl"></div>
+        <div className="relative overflow-hidden rounded-[26px] bg-[#18181B] p-7 text-white shadow-xl border border-zinc-800">
+          <div className="absolute bottom-[-20%] left-[-10%] w-48 h-48 bg-orange-500/10 rounded-full blur-2xl"></div>
           <div className="relative z-10 flex items-start justify-between">
             <div>
-              <div className="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold mb-3 text-gray-300">
-                <WalletIcon size={13} className="text-[#38BDF8]" />
-                <span>Game & Plan Balance</span>
+              <div className="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold mb-3 text-orange-200">
+                <WalletIcon size={13} className="text-[#FB923C]" />
+                <span>Plan Balance</span>
               </div>
-              <p className="text-xs uppercase tracking-wider text-gray-400 font-bold">Deposit Balance</p>
+              <p className="text-xs uppercase tracking-wider text-zinc-400 font-bold">Deposit Balance</p>
               <h2 className="mt-1 text-3xl sm:text-4xl font-extrabold tracking-tight text-white">₹{walletDeposit.toFixed(2)}</h2>
               <div className="mt-3 flex items-center gap-2">
-                <Link to="/plans" className="text-xs font-bold text-[#38BDF8] hover:underline flex items-center gap-1">
+                <Link to="/plans" className="text-xs font-bold text-[#FB923C] hover:underline flex items-center gap-1">
                   Browse Plans <ChevronRight size={12} />
                 </Link>
-                <span className="text-gray-600">•</span>
-                <Link to="/games" className="text-xs font-bold text-[#A78BFA] hover:underline flex items-center gap-1">
-                  Play Games <ChevronRight size={12} />
-                </Link>
+                <span className="text-zinc-600">•</span>
+                
               </div>
             </div>
             <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center shrink-0">
-              <WalletIcon size={24} className="text-gray-300" />
+              <WalletIcon size={24} className="text-zinc-300" />
             </div>
           </div>
         </div>
@@ -346,12 +345,12 @@ const Wallet = () => {
       <div className="bg-white rounded-[26px] p-6 sm:p-7 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#F4F2FF] flex items-center justify-center text-[#4A3AFF]">
+            <div className="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center text-[#EA580C]">
               <Building2 size={20} />
             </div>
             <div>
-              <h3 className="text-lg font-extrabold text-[#0F172A]">Payout Destination (Bank Account)</h3>
-              <p className="text-xs text-[#64748B] font-medium">Bank account where your withdrawn funds will be credited</p>
+              <h3 className="text-lg font-black text-[#090A0F]">Payout Destination (Bank Account)</h3>
+              <p className="text-xs text-[#334155] font-semibold">Bank account where your withdrawn funds will be credited</p>
             </div>
           </div>
           {hasCompleteBankDetails() && (
@@ -360,7 +359,7 @@ const Wallet = () => {
                 prefillBankForm(user.payoutDetails);
                 setShowBankModal(true);
               }}
-              className="text-xs font-extrabold text-[#4A3AFF] hover:text-[#3B82F6] flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#F4F2FF] hover:bg-[#ECE8FF] transition"
+              className="text-xs font-black text-[#EA580C] hover:text-[#C2410C] flex items-center gap-1 px-3 py-1.5 rounded-lg bg-orange-50 hover:bg-orange-100 transition"
             >
               <Edit3 size={14} />
               <span>Change</span>
@@ -369,8 +368,8 @@ const Wallet = () => {
         </div>
 
         {hasCompleteBankDetails() ? (
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 p-6 text-white shadow-lg">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-zinc-900 via-stone-900 to-zinc-950 p-6 text-white shadow-lg border border-zinc-800">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-orange-500/10 rounded-full blur-3xl pointer-events-none"></div>
             
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-4 mb-4">
               <div className="flex items-center gap-3">
@@ -462,22 +461,22 @@ const Wallet = () => {
             <ArrowDownToLine size={20} />
           </div>
           <div>
-            <h3 className="text-lg font-extrabold text-[#0F172A]">Request Payout</h3>
-            <p className="text-xs text-[#64748B] font-medium">Funds will be transferred to your linked bank account</p>
+            <h3 className="text-lg font-black text-[#090A0F]">Request Payout</h3>
+            <p className="text-xs text-[#334155] font-semibold">Funds will be transferred to your linked bank account</p>
           </div>
         </div>
 
         <form onSubmit={handleInitiateWithdrawal} className="space-y-5">
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="text-xs font-extrabold uppercase tracking-wider text-[#0F172A]">Withdrawal Amount (₹)</label>
-              <span className="text-xs font-semibold text-[#64748B]">
-                Max: <strong className="text-[#0F172A]">₹{availableEarning.toFixed(2)}</strong>
+              <label className="text-xs font-black uppercase tracking-wider text-[#090A0F]">Withdrawal Amount (₹)</label>
+              <span className="text-xs font-bold text-[#1E293B]">
+                Max: <strong className="text-[#090A0F] font-black">₹{availableEarning.toFixed(2)}</strong>
               </span>
             </div>
 
             <div className="relative rounded-2xl shadow-sm">
-              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400 font-bold text-lg">
+              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-gray-700 font-black text-lg">
                 ₹
               </div>
               <input
@@ -487,11 +486,11 @@ const Wallet = () => {
                 required
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                className="block w-full rounded-2xl border-2 border-gray-100 bg-gray-50/50 py-3.5 pl-9 pr-16 text-lg font-bold text-[#0F172A] focus:border-[#4A3AFF] focus:bg-white focus:outline-none transition"
+                className="block w-full rounded-2xl border-2 border-gray-200 bg-gray-50/50 py-3.5 pl-9 pr-16 text-lg font-black text-[#090A0F] focus:border-[#EA580C] focus:bg-white focus:outline-none transition"
                 placeholder="Enter amount (min ₹200)"
               />
               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4">
-                <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">INR</span>
+                <span className="text-xs font-black text-gray-500 uppercase tracking-wider">INR</span>
               </div>
             </div>
 
@@ -502,10 +501,10 @@ const Wallet = () => {
                   type="button"
                   key={val}
                   onClick={() => setAmount(val.toString())}
-                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition border ${
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition border ${
                     amount === val.toString()
-                      ? 'bg-[#4A3AFF] text-white border-[#4A3AFF]'
-                      : 'bg-gray-50 text-[#64748B] border-gray-200 hover:bg-gray-100'
+                      ? 'bg-gradient-to-r from-[#EA580C] to-[#EF4444] text-white border-transparent shadow-sm shadow-orange-500/20'
+                      : 'bg-gray-100 text-[#090A0F] border-gray-300 hover:bg-gray-200'
                   }`}
                 >
                   ₹{val}
@@ -515,7 +514,7 @@ const Wallet = () => {
                 type="button"
                 onClick={() => setAmount(Math.floor(availableEarning).toString())}
                 disabled={availableEarning < 200}
-                className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-[#F4F2FF] text-[#4A3AFF] border border-[#E0D8FF] hover:bg-[#ECE8FF] transition disabled:opacity-50"
+                className="px-3.5 py-1.5 rounded-xl text-xs font-black bg-orange-50 text-[#EA580C] border border-orange-300 hover:bg-orange-100 transition disabled:opacity-50"
               >
                 Max Balance
               </button>
@@ -523,10 +522,10 @@ const Wallet = () => {
           </div>
 
           {/* Info Banner */}
-          <div className="rounded-xl bg-blue-50/70 border border-blue-100 p-3.5 flex items-start gap-2.5 text-xs text-blue-900 font-medium">
-            <Info size={16} className="text-blue-600 shrink-0 mt-0.5" />
-            <div className="space-y-0.5">
-              <p>• Minimum withdrawal amount is <strong>₹200</strong>.</p>
+          <div className="rounded-xl bg-orange-50/90 border border-orange-200 p-3.5 flex items-start gap-2.5 text-xs text-[#431407] font-semibold">
+            <Info size={16} className="text-[#C2410C] shrink-0 mt-0.5" />
+            <div className="space-y-0.5 text-[#431407]">
+              <p>• Minimum withdrawal amount is <strong className="text-black font-black">₹200</strong>.</p>
               <p>• Requests are reviewed and processed by admin directly to your verified bank account.</p>
             </div>
           </div>
@@ -534,7 +533,7 @@ const Wallet = () => {
           <button
             type="submit"
             disabled={submitting || availableEarning < 200}
-            className="w-full rounded-2xl bg-gradient-to-r from-[#4A3AFF] to-[#3B82F6] py-4 font-extrabold text-white text-base shadow-[0_8px_20px_rgba(74,58,255,0.25)] hover:opacity-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="w-full rounded-2xl bg-gradient-to-r from-[#EA580C] via-[#F97316] to-[#EF4444] py-4 font-black text-white text-base shadow-[0_8px_20px_rgba(234,88,12,0.28)] hover:brightness-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             <ArrowDownToLine size={18} />
             <span>
@@ -553,14 +552,14 @@ const Wallet = () => {
       <div id="withdrawals" className="space-y-4 scroll-mt-24">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center text-gray-700">
+            <div className="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center text-gray-800">
               <History size={18} />
             </div>
-            <h3 className="text-lg font-extrabold text-[#0F172A]">Withdrawal History</h3>
+            <h3 className="text-lg font-black text-[#090A0F]">Withdrawal History</h3>
           </div>
 
           {/* Tabs */}
-          <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-xl text-xs font-bold text-gray-600 w-fit">
+          <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-xl text-xs font-black text-gray-800 w-fit">
             {[
               { id: 'all', label: 'All' },
               { id: 'requested', label: 'Pending' },
@@ -570,10 +569,10 @@ const Wallet = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`px-3 py-1.5 rounded-lg transition ${
+                className={`px-3 py-1.5 rounded-lg transition font-black ${
                   activeTab === tab.id
-                    ? 'bg-white text-[#0F172A] shadow-sm'
-                    : 'hover:text-[#0F172A]'
+                    ? 'bg-gradient-to-r from-[#EA580C] to-[#EF4444] text-white shadow-sm'
+                    : 'text-[#1E293B] hover:text-black'
                 }`}
               >
                 {tab.label}
@@ -583,7 +582,7 @@ const Wallet = () => {
         </div>
 
         {loading ? (
-          <div className="p-8 text-center bg-white rounded-2xl border border-gray-100 text-[#64748B] text-sm">
+          <div className="p-8 text-center bg-white rounded-2xl border border-gray-100 text-[#090A0F] font-bold text-sm">
             Loading your withdrawal requests...
           </div>
         ) : filteredWithdrawals.length > 0 ? (
@@ -599,9 +598,9 @@ const Wallet = () => {
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-100 pb-3">
                     <div className="flex items-center gap-3">
                       <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold ${
-                        status === 'paid' ? 'bg-emerald-50 text-emerald-600' :
-                        status === 'rejected' ? 'bg-rose-50 text-rose-600' :
-                        'bg-amber-50 text-amber-600'
+                        status === 'paid' ? 'bg-emerald-50 text-emerald-700' :
+                        status === 'rejected' ? 'bg-rose-50 text-rose-700' :
+                        'bg-amber-50 text-amber-700'
                       }`}>
                         {status === 'paid' ? <CheckCircle2 size={20} /> :
                          status === 'rejected' ? <AlertCircle size={20} /> :
@@ -609,18 +608,18 @@ const Wallet = () => {
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <h4 className="text-xl font-extrabold text-[#0F172A]">
+                          <h4 className="text-xl font-black text-[#090A0F]">
                             ₹{(withdrawal.amount / 100).toFixed(2)}
                           </h4>
-                          <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold capitalize ${
-                            status === 'paid' ? 'bg-emerald-100 text-emerald-700' :
-                            status === 'rejected' ? 'bg-rose-100 text-rose-700' :
-                            'bg-amber-100 text-amber-700'
+                          <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-black capitalize ${
+                            status === 'paid' ? 'bg-emerald-100 text-emerald-900' :
+                            status === 'rejected' ? 'bg-rose-100 text-rose-900' :
+                            'bg-amber-100 text-amber-900'
                           }`}>
                             {status === 'requested' ? 'Pending Review' : status}
                           </span>
                         </div>
-                        <p className="text-xs text-[#64748B] font-medium mt-0.5">
+                        <p className="text-xs text-[#334155] font-bold mt-0.5">
                           Requested on {new Date(withdrawal.createdAt).toLocaleString('en-IN', {
                             dateStyle: 'medium',
                             timeStyle: 'short'
@@ -630,32 +629,32 @@ const Wallet = () => {
                     </div>
 
                     {/* Bank summary badge */}
-                    <div className="text-xs text-[#0F172A] font-semibold bg-gray-50 px-3 py-1.5 rounded-xl border border-gray-100 w-fit">
-                      <span className="text-[#64748B]">Bank:</span> {snapshot.bankName || 'Direct Transfer'} 
+                    <div className="text-xs text-[#090A0F] font-black bg-gray-50 px-3 py-1.5 rounded-xl border border-gray-200 w-fit">
+                      <span className="text-[#334155] font-bold">Bank:</span> {snapshot.bankName || 'Direct Transfer'} 
                       {snapshot.accountNumber && (
-                        <span className="ml-1 text-gray-500 font-mono">(•••• {snapshot.accountNumber.slice(-4)})</span>
+                        <span className="ml-1 text-[#090A0F] font-mono font-bold">(•••• {snapshot.accountNumber.slice(-4)})</span>
                       )}
                     </div>
                   </div>
 
                   {/* Details section */}
                   <div className="pt-3 text-xs space-y-2">
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-gray-600">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-gray-800">
                       <div>
-                        <span className="text-gray-400 block text-[11px] font-bold uppercase">Account Name</span>
-                        <span className="font-semibold text-gray-900">{snapshot.accountHolderName || user?.name}</span>
+                        <span className="text-[#475569] block text-[11px] font-black uppercase">Account Name</span>
+                        <span className="font-extrabold text-[#090A0F]">{snapshot.accountHolderName || user?.name}</span>
                       </div>
                       <div>
-                        <span className="text-gray-400 block text-[11px] font-bold uppercase">IFSC Code</span>
-                        <span className="font-semibold text-gray-900 font-mono">{snapshot.ifscCode || '—'}</span>
+                        <span className="text-[#475569] block text-[11px] font-black uppercase">IFSC Code</span>
+                        <span className="font-black text-[#090A0F] font-mono">{snapshot.ifscCode || '—'}</span>
                       </div>
                       <div>
-                        <span className="text-gray-400 block text-[11px] font-bold uppercase">Branch</span>
-                        <span className="font-semibold text-gray-900">{snapshot.branchName || '—'}</span>
+                        <span className="text-[#475569] block text-[11px] font-black uppercase">Branch</span>
+                        <span className="font-extrabold text-[#090A0F]">{snapshot.branchName || '—'}</span>
                       </div>
                       <div>
-                        <span className="text-gray-400 block text-[11px] font-bold uppercase">Status Update</span>
-                        <span className="font-semibold text-gray-900">
+                        <span className="text-[#475569] block text-[11px] font-black uppercase">Status Update</span>
+                        <span className="font-extrabold text-[#090A0F]">
                           {withdrawal.processedAt 
                             ? new Date(withdrawal.processedAt).toLocaleDateString('en-IN', { dateStyle: 'medium' })
                             : 'In Queue'}
@@ -665,14 +664,14 @@ const Wallet = () => {
 
                     {/* If Paid: Show UTR/Payment Reference */}
                     {status === 'paid' && withdrawal.paymentReference && (
-                      <div className="mt-2 p-2.5 rounded-xl bg-emerald-50/70 border border-emerald-100 flex items-center justify-between text-emerald-900">
-                        <div className="flex items-center gap-1.5">
-                          <CheckCircle2 size={14} className="text-emerald-600 shrink-0" />
-                          <span>Bank UTR / Transaction Ref: <strong className="font-mono text-emerald-950 font-bold">{withdrawal.paymentReference}</strong></span>
+                      <div className="mt-2 p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-between text-emerald-950">
+                        <div className="flex items-center gap-1.5 font-bold">
+                          <CheckCircle2 size={14} className="text-emerald-700 shrink-0" />
+                          <span>Bank UTR / Transaction Ref: <strong className="font-mono text-black font-black">{withdrawal.paymentReference}</strong></span>
                         </div>
                         <button
                           onClick={() => handleCopy(withdrawal.paymentReference, withdrawal._id)}
-                          className="text-xs font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1 bg-white px-2 py-1 rounded-md border border-emerald-200"
+                          className="text-xs font-black text-emerald-900 hover:text-emerald-950 flex items-center gap-1 bg-white px-2.5 py-1 rounded-md border border-emerald-300 shadow-xs"
                         >
                           {copiedId === withdrawal._id ? <Check size={12} /> : <Copy size={12} />}
                           <span>{copiedId === withdrawal._id ? 'Copied' : 'Copy'}</span>
@@ -727,7 +726,7 @@ const Wallet = () => {
             </button>
 
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 rounded-2xl bg-[#F4F2FF] flex items-center justify-center text-[#4A3AFF]">
+              <div className="w-12 h-12 rounded-2xl bg-orange-50 flex items-center justify-center text-[#EA580C]">
                 <Building2 size={24} />
               </div>
               <div>
@@ -755,7 +754,7 @@ const Wallet = () => {
                   value={bankForm.accountHolderName}
                   onChange={(e) => setBankForm({ ...bankForm, accountHolderName: e.target.value })}
                   placeholder="Full name as printed in passbook"
-                  className="w-full rounded-xl border border-gray-200 bg-gray-50/50 p-3 text-sm font-semibold text-[#0F172A] focus:border-[#4A3AFF] focus:bg-white focus:outline-none transition"
+                  className="w-full rounded-xl border border-gray-200 bg-gray-50/50 p-3 text-sm font-semibold text-[#0F172A] focus:border-[#EA580C] focus:bg-white focus:outline-none transition"
                 />
               </div>
 
@@ -767,7 +766,7 @@ const Wallet = () => {
                 <select
                   value={bankForm.bankName}
                   onChange={(e) => setBankForm({ ...bankForm, bankName: e.target.value })}
-                  className="w-full rounded-xl border border-gray-200 bg-gray-50/50 p-3 text-sm font-semibold text-[#0F172A] focus:border-[#4A3AFF] focus:bg-white focus:outline-none transition"
+                  className="w-full rounded-xl border border-gray-200 bg-gray-50/50 p-3 text-sm font-semibold text-[#0F172A] focus:border-[#EA580C] focus:bg-white focus:outline-none transition"
                   required
                 >
                   <option value="">Select your bank</option>
@@ -783,7 +782,7 @@ const Wallet = () => {
                     value={bankForm.customBankName}
                     onChange={(e) => setBankForm({ ...bankForm, customBankName: e.target.value })}
                     placeholder="Enter bank name"
-                    className="mt-2 w-full rounded-xl border border-gray-200 bg-gray-50/50 p-3 text-sm font-semibold text-[#0F172A] focus:border-[#4A3AFF] focus:bg-white focus:outline-none transition"
+                    className="mt-2 w-full rounded-xl border border-gray-200 bg-gray-50/50 p-3 text-sm font-semibold text-[#0F172A] focus:border-[#EA580C] focus:bg-white focus:outline-none transition"
                   />
                 )}
               </div>
@@ -800,7 +799,7 @@ const Wallet = () => {
                     value={bankForm.accountNumber}
                     onChange={(e) => setBankForm({ ...bankForm, accountNumber: e.target.value.replace(/\D/g, '') })}
                     placeholder="8 to 20 digits"
-                    className="w-full rounded-xl border border-gray-200 bg-gray-50/50 p-3 text-sm font-semibold font-mono text-[#0F172A] focus:border-[#4A3AFF] focus:bg-white focus:outline-none transition"
+                    className="w-full rounded-xl border border-gray-200 bg-gray-50/50 p-3 text-sm font-semibold font-mono text-[#0F172A] focus:border-[#EA580C] focus:bg-white focus:outline-none transition"
                   />
                 </div>
 
@@ -814,7 +813,7 @@ const Wallet = () => {
                     value={bankForm.confirmAccountNumber}
                     onChange={(e) => setBankForm({ ...bankForm, confirmAccountNumber: e.target.value.replace(/\D/g, '') })}
                     placeholder="Re-enter account number"
-                    className="w-full rounded-xl border border-gray-200 bg-gray-50/50 p-3 text-sm font-semibold font-mono text-[#0F172A] focus:border-[#4A3AFF] focus:bg-white focus:outline-none transition"
+                    className="w-full rounded-xl border border-gray-200 bg-gray-50/50 p-3 text-sm font-semibold font-mono text-[#0F172A] focus:border-[#EA580C] focus:bg-white focus:outline-none transition"
                   />
                 </div>
               </div>
@@ -832,7 +831,7 @@ const Wallet = () => {
                     value={bankForm.ifscCode}
                     onChange={(e) => setBankForm({ ...bankForm, ifscCode: e.target.value.toUpperCase().trim() })}
                     placeholder="e.g. SBIN0001234"
-                    className="w-full rounded-xl border border-gray-200 bg-gray-50/50 p-3 text-sm font-semibold font-mono uppercase text-[#0F172A] focus:border-[#4A3AFF] focus:bg-white focus:outline-none transition"
+                    className="w-full rounded-xl border border-gray-200 bg-gray-50/50 p-3 text-sm font-semibold font-mono uppercase text-[#0F172A] focus:border-[#EA580C] focus:bg-white focus:outline-none transition"
                   />
                 </div>
 
@@ -846,7 +845,7 @@ const Wallet = () => {
                     value={bankForm.branchName}
                     onChange={(e) => setBankForm({ ...bankForm, branchName: e.target.value })}
                     placeholder="e.g. MG Road Branch"
-                    className="w-full rounded-xl border border-gray-200 bg-gray-50/50 p-3 text-sm font-semibold text-[#0F172A] focus:border-[#4A3AFF] focus:bg-white focus:outline-none transition"
+                    className="w-full rounded-xl border border-gray-200 bg-gray-50/50 p-3 text-sm font-semibold text-[#0F172A] focus:border-[#EA580C] focus:bg-white focus:outline-none transition"
                   />
                 </div>
               </div>
@@ -861,7 +860,7 @@ const Wallet = () => {
                   value={bankForm.upiId}
                   onChange={(e) => setBankForm({ ...bankForm, upiId: e.target.value })}
                   placeholder="e.g. mobile@upi or username@okhdfcbank"
-                  className="w-full rounded-xl border border-gray-200 bg-gray-50/50 p-3 text-sm font-semibold text-[#0F172A] focus:border-[#4A3AFF] focus:bg-white focus:outline-none transition"
+                  className="w-full rounded-xl border border-gray-200 bg-gray-50/50 p-3 text-sm font-semibold text-[#0F172A] focus:border-[#EA580C] focus:bg-white focus:outline-none transition"
                 />
               </div>
 
@@ -876,7 +875,7 @@ const Wallet = () => {
                 <button
                   type="submit"
                   disabled={savingBank}
-                  className="px-6 py-3 rounded-xl bg-[#4A3AFF] text-white text-sm font-bold shadow-md shadow-[#4A3AFF]/20 hover:bg-[#3B82F6] transition disabled:opacity-50"
+                  className="px-6 py-3 rounded-xl bg-gradient-to-r from-[#EA580C] to-[#EF4444] text-white text-sm font-bold shadow-md shadow-orange-500/20 hover:brightness-105 transition disabled:opacity-50"
                 >
                   {savingBank ? 'Saving Details...' : 'Save Bank Details'}
                 </button>
@@ -892,7 +891,7 @@ const Wallet = () => {
       {showConfirmModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
           <div className="w-full max-w-md rounded-3xl bg-white p-6 sm:p-8 shadow-2xl">
-            <div className="w-14 h-14 rounded-2xl bg-indigo-50 text-[#4A3AFF] flex items-center justify-center mx-auto mb-4">
+            <div className="w-14 h-14 rounded-2xl bg-orange-50 text-[#EA580C] flex items-center justify-center mx-auto mb-4">
               <ArrowDownToLine size={28} />
             </div>
 
@@ -902,7 +901,7 @@ const Wallet = () => {
             <div className="my-6 rounded-2xl bg-gray-50 p-4 border border-gray-100 space-y-3">
               <div className="flex justify-between items-center pb-2 border-b border-gray-200 text-sm">
                 <span className="text-gray-500 font-semibold">Payout Amount</span>
-                <span className="font-extrabold text-2xl text-[#0F172A]">₹{Number(amount).toFixed(2)}</span>
+                <span className="font-extrabold text-2xl text-[#EA580C]">₹{Number(amount).toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-xs">
                 <span className="text-gray-500 font-medium">Bank</span>
@@ -938,7 +937,7 @@ const Wallet = () => {
                 type="button"
                 onClick={handleConfirmWithdrawal}
                 disabled={submitting}
-                className="flex-1 py-3 rounded-xl bg-[#4A3AFF] text-white text-sm font-bold shadow-lg shadow-[#4A3AFF]/20 hover:bg-[#3B82F6] transition disabled:opacity-50"
+                className="flex-1 py-3 rounded-xl bg-gradient-to-r from-[#EA580C] to-[#EF4444] text-white text-sm font-bold shadow-lg shadow-orange-500/20 hover:brightness-105 transition disabled:opacity-50"
               >
                 {submitting ? 'Submitting...' : 'Confirm & Submit'}
               </button>

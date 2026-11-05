@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../lib/axios';
+import { useModal } from '../../context/ModalContext';
 import { PlusCircle, Check, X, Copy, CheckCircle2, AlertCircle, RefreshCw, Search, Clock } from 'lucide-react';
 
 const AdminTopUps = () => {
+  const { showAlert, showConfirm } = useModal();
   const [topUps, setTopUps] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState('all');
@@ -26,7 +28,11 @@ const AdminTopUps = () => {
   };
 
   const handleApprove = async (id, amount) => {
-    if (!window.confirm(`Are you sure you want to approve this deposit of ₹${(amount / 100).toFixed(2)} and credit the user's wallet?`)) {
+    const confirmed = await showConfirm(
+      `Are you sure you want to approve this deposit of ₹${(amount / 100).toFixed(2)} and credit the user's wallet?`,
+      { title: 'Approve Deposit', confirmText: 'Approve & Credit' }
+    );
+    if (!confirmed) {
       return;
     }
 
@@ -34,11 +40,11 @@ const AdminTopUps = () => {
     try {
       const res = await api.post(`/admin/topups/${id}/approve`);
       if (res.data.success) {
-        alert('Deposit approved successfully! User wallet has been credited.');
+        await showAlert('Deposit approved successfully! User wallet has been credited.', 'success');
         await fetchTopUps();
       }
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to approve deposit.');
+      await showAlert(err.response?.data?.error || 'Failed to approve deposit.', 'error');
     } finally {
       setProcessingId(null);
     }
@@ -52,11 +58,11 @@ const AdminTopUps = () => {
     try {
       const res = await api.post(`/admin/topups/${id}/reject`, { reason });
       if (res.data.success) {
-        alert('Deposit marked as rejected.');
+        await showAlert('Deposit marked as rejected.', 'info');
         await fetchTopUps();
       }
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to reject deposit.');
+      await showAlert(err.response?.data?.error || 'Failed to reject deposit.', 'error');
     } finally {
       setProcessingId(null);
     }

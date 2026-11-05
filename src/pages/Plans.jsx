@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../lib/axios';
 import { useAuth } from '../context/AuthContext';
+import { useModal } from '../context/ModalContext';
 import { PlusCircle, AlertCircle, Sparkles, Clock, Package } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
@@ -9,6 +10,7 @@ const Plans = () => {
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
   const { user, fetchUser } = useAuth();
+  const { showAlert, showConfirm } = useModal();
   const [purchasing, setPurchasing] = useState(null);
   const [message, setMessage] = useState('');
   const [activeTab, setActiveTab] = useState('normal'); // 'normal' | 'special' | 'coming_soon'
@@ -48,7 +50,11 @@ const Plans = () => {
       return;
     }
 
-    if (!window.confirm(`Are you sure you want to purchase the ${plan.name} plan for ₹${(plan.initialPayment / 100).toFixed(2)}?`)) {
+    const confirmed = await showConfirm(
+      `Are you sure you want to purchase the ${plan.name} plan for ₹${(plan.initialPayment / 100).toFixed(2)}?`,
+      { title: 'Confirm Investment', confirmText: 'Buy Plan' }
+    );
+    if (!confirmed) {
       return;
     }
 

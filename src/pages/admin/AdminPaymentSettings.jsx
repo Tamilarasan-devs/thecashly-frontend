@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import api from '../../lib/axios';
+import { useModal } from '../../context/ModalContext';
 import {
   QrCode,
   Upload,
@@ -32,6 +33,7 @@ const getImageUrl = (url) => {
 };
 
 const AdminPaymentSettings = () => {
+  const { showAlert, showConfirm } = useModal();
   const [loading, setLoading] = useState(true);
   const [savingGlobal, setSavingGlobal] = useState(false);
   const [savingChannel, setSavingChannel] = useState(false);
@@ -145,7 +147,7 @@ const AdminPaymentSettings = () => {
     const file = e.target.files?.[0];
     if (file) {
       if (!file.type.startsWith('image/')) {
-        alert('Please select a valid image file (PNG, JPG, WEBP).');
+        showAlert('Please select a valid image file (PNG, JPG, WEBP).', 'warning');
         return;
       }
       setSelectedFile(file);
@@ -163,7 +165,7 @@ const AdminPaymentSettings = () => {
     setStatusMsg({ type: '', text: '' });
 
     if (!channelForm.upiId.trim()) {
-      alert('UPI ID is required');
+      await showAlert('UPI ID is required', 'warning');
       return;
     }
 
@@ -198,15 +200,14 @@ const AdminPaymentSettings = () => {
         setSettings(updated);
         setChannels(updated.channels || []);
         setActiveModal(null);
-        setStatusMsg({
-          type: 'success',
-          text: editingChannel ? 'Payment channel updated successfully!' : 'New QR code & UPI channel added!'
-        });
-        setTimeout(() => setStatusMsg({ type: '', text: '' }), 4000);
+        await showAlert(
+          editingChannel ? 'Payment channel updated successfully!' : 'New QR code & UPI channel added!',
+          'success'
+        );
       }
     } catch (err) {
       console.error(err);
-      alert(err.response?.data?.error || 'Failed to save payment channel');
+      await showAlert(err.response?.data?.error || 'Failed to save payment channel', 'error');
     } finally {
       setSavingChannel(false);
     }
@@ -220,11 +221,10 @@ const AdminPaymentSettings = () => {
         setSettings(res.data.data);
         setChannels(res.data.data.channels || []);
         setPreviewSelectedChannelId(channelId);
-        setStatusMsg({ type: 'success', text: 'Primary payment channel updated.' });
-        setTimeout(() => setStatusMsg({ type: '', text: '' }), 3000);
+        await showAlert('Primary payment channel updated.', 'success');
       }
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to set primary channel');
+      await showAlert(err.response?.data?.error || 'Failed to set primary channel', 'error');
     }
   };
 
@@ -237,24 +237,27 @@ const AdminPaymentSettings = () => {
         setChannels(res.data.data.channels || []);
       }
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to toggle channel status');
+      await showAlert(err.response?.data?.error || 'Failed to toggle channel status', 'error');
     }
   };
 
   // Delete Channel
   const handleDeleteChannel = async (channelId) => {
-    if (!window.confirm('Are you sure you want to delete this payment QR & UPI channel?')) return;
+    const confirmed = await showConfirm(
+      'Are you sure you want to delete this payment QR & UPI channel?',
+      { title: 'Delete Channel', confirmText: 'Delete', type: 'error' }
+    );
+    if (!confirmed) return;
 
     try {
       const res = await api.delete(`/admin/payment-settings/channels/${channelId}`);
       if (res.data.success && res.data.data) {
         setSettings(res.data.data);
         setChannels(res.data.data.channels || []);
-        setStatusMsg({ type: 'success', text: 'Channel removed successfully.' });
-        setTimeout(() => setStatusMsg({ type: '', text: '' }), 3000);
+        await showAlert('Channel removed successfully.', 'info');
       }
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to delete channel');
+      await showAlert(err.response?.data?.error || 'Failed to delete channel', 'error');
     }
   };
 

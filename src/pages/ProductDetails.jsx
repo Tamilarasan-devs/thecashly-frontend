@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useModal } from '../context/ModalContext';
 import api from '../lib/axios';
 import { ArrowLeft, Package, CheckCircle2, Star, Clock, AlertTriangle, Lock, EyeOff } from 'lucide-react';
 
@@ -8,6 +9,7 @@ const ProductDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user, fetchUser } = useAuth();
+  const { showAlert, showConfirm } = useModal();
   const [plan, setPlan] = useState(null);
   const [loading, setLoading] = useState(true);
   const [purchasing, setPurchasing] = useState(false);
@@ -31,35 +33,37 @@ const ProductDetails = () => {
 
   const handlePurchase = async () => {
     if (plan.status === 'hidden' || plan.status === 'draft') {
-      alert('This plan is currently hidden and locked.');
+      await showAlert('This plan is currently hidden and locked.', 'warning');
       return;
     }
 
     if (plan.isComingSoon || plan.planType === 'coming_soon') {
-      alert('This plan is coming soon and cannot be purchased yet.');
+      await showAlert('This plan is coming soon and cannot be purchased yet.', 'info');
       return;
     }
 
     if (user.walletBalance < plan.initialPayment) {
-      alert(`Insufficient wallet balance. You need ₹${((plan.initialPayment - user.walletBalance) / 100).toFixed(2)} more to buy ${plan.name}.`);
+      await showAlert(`Insufficient wallet balance. You need ₹${((plan.initialPayment - user.walletBalance) / 100).toFixed(2)} more to buy ${plan.name}.`, 'warning');
       navigate(`/add-cash?planId=${plan._id}&amount=${plan.initialPayment / 100}`);
       return;
     }
 
-    if (!window.confirm(`Are you sure you want to purchase the ${plan.name} plan for ₹${(plan.initialPayment / 100).toFixed(2)}?`)) {
-      return;
-    }
+    const confirmed = await showConfirm(
+      `Are you sure you want to purchase the ${plan.name} plan for ₹${(plan.initialPayment / 100).toFixed(2)}?`,
+      { title: 'Confirm Investment', confirmText: 'Buy Plan' }
+    );
+    if (!confirmed) return;
 
     setPurchasing(true);
     try {
       const res = await api.post('/payments/purchase', { planId: plan._id });
       if (res.data.success) {
-        alert('Product purchased successfully!');
+        await showAlert('Product purchased successfully!', 'success');
         await fetchUser();
         navigate('/services/my-products');
       }
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to purchase product');
+      await showAlert(err.response?.data?.error || 'Failed to purchase product', 'error');
     } finally {
       setPurchasing(false);
     }

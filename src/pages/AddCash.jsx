@@ -921,13 +921,13 @@ const AddCash = () => {
           </form>
 
           {/* Sandbox Dev Mode Toggle */}
-          <div className="pt-2 text-center border-t border-gray-100">
+          {/* <div className="pt-2 text-center border-t border-gray-100">
             <button
               type="button"
               onClick={() => setShowSandbox(!showSandbox)}
               className="text-[11px] font-bold text-gray-400 hover:text-gray-600 underline cursor-pointer"
             >
-              {showSandbox ? 'Hide Sandbox Test Option' : 'Developer Sandbox Mode'}
+              {showSandbox ? 'Hide Sandbox Test Option' : ''}
             </button>
 
             {showSandbox && (
@@ -949,7 +949,7 @@ const AddCash = () => {
                 </button>
               </div>
             )}
-          </div>
+          </div> */}
         </div>
       </div>
 

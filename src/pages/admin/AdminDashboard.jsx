@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import api from '../../lib/axios';
+import { useModal } from '../../context/ModalContext';
 import { Users, Banknote, ShieldAlert, Zap, Gift } from 'lucide-react';
 
 const AdminDashboard = () => {
+  const { showAlert } = useModal();
   const [stats, setStats] = useState({
     totalUsers: 0,
     activePlans: 0,
@@ -32,9 +33,9 @@ const AdminDashboard = () => {
     setTriggering(true);
     try {
       const res = await api.post('/admin/trigger-payouts');
-      alert(`Success! Processed ${res.data.processedCount} payouts.`);
+      await showAlert(`Success! Processed ${res.data.processedCount} payouts.`, 'success');
     } catch (err) {
-      alert('Failed to trigger payouts');
+      await showAlert('Failed to trigger payouts. Please try again.', 'error');
     } finally {
       setTriggering(false);
     }

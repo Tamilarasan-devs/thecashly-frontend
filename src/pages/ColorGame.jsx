@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Wallet, RefreshCcw, X, Trophy, AlertCircle, Clock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import api from '../lib/axios';
+import { useModal } from '../context/ModalContext';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const ColorGame = () => {
   const navigate = useNavigate();
+  const { showAlert } = useModal();
   const [gameState, setGameState] = useState(null);
   const [history, setHistory] = useState({ rounds: [], userHistory: [] });
   const [loading, setLoading] = useState(true);
@@ -75,7 +77,7 @@ const ColorGame = () => {
 
   const openBetModal = (type, value) => {
     if (isLocked) {
-      alert('Entries are closed for this round!');
+      showAlert('Entries are closed for this round! Please wait for the next countdown.', 'warning');
       return;
     }
     setBetSelection({ type, value });
@@ -86,9 +88,15 @@ const ColorGame = () => {
 
   const submitBet = async () => {
     const totalPoints = betAmountMultiplier * betQuantity;
-    if (totalPoints <= 0) return alert('Invalid points.');
-    if (isLocked) return alert('Entries are closed for this round!');
-    if ((gameState?.walletBalance || 0) < totalPoints) return alert('Insufficient balance.');
+    if (totalPoints <= 0) {
+      return showAlert('Please enter a valid points amount.', 'warning');
+    }
+    if (isLocked) {
+      return showAlert('Entries are closed for this round! Please wait for next round.', 'warning');
+    }
+    if ((gameState?.walletBalance || 0) < totalPoints) {
+      return showAlert('Insufficient wallet balance to place this prediction.', 'error');
+    }
 
     setSubmitting(true);
     try {
@@ -106,7 +114,7 @@ const ColorGame = () => {
         fetchHistory();
       }
     } catch (error) {
-      alert(error.response?.data?.message || 'Failed to submit prediction.');
+      showAlert(error.response?.data?.message || 'Failed to submit prediction.', 'error');
     } finally {
       setSubmitting(false);
     }

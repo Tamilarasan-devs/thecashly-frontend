@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import api from '../../lib/axios';
 import { useAuth } from '../../context/AuthContext';
+import { useModal } from '../../context/ModalContext';
 import { Package, Star, Calendar, ArrowRight, Hexagon, IndianRupee, TrendingUp, RefreshCw } from 'lucide-react';
 
 const MyProducts = () => {
@@ -8,6 +9,7 @@ const MyProducts = () => {
   const [loading, setLoading] = useState(true);
   const [collectingId, setCollectingId] = useState(null);
   const { fetchUser } = useAuth();
+  const { showAlert } = useModal();
 
   const fetchSubs = () => {
     api.get('/payments/subscriptions').then(res => {
@@ -27,15 +29,15 @@ const MyProducts = () => {
       const res = await api.post(`/payments/subscriptions/${subId}/collect`);
       if (res.data.success) {
         if (res.data.amount > 0) {
-          alert(`Successfully collected ₹${(res.data.amount / 100).toFixed(2)}`);
+          await showAlert(`Successfully collected ₹${(res.data.amount / 100).toFixed(2)} to your wallet!`, 'success');
         } else {
-          alert(res.data.message || 'All eligible returns are already collected!');
+          await showAlert(res.data.message || 'All eligible returns are already collected!', 'info');
         }
         await fetchUser(); // Refresh global wallet balance
         fetchSubs(); // Refresh local list
       }
     } catch (error) {
-      alert(error.response?.data?.error || error.response?.data?.message || 'Failed to collect earnings');
+      await showAlert(error.response?.data?.error || error.response?.data?.message || 'Failed to collect earnings', 'error');
     } finally {
       setCollectingId(null);
     }

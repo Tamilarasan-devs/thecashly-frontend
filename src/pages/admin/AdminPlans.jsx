@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../lib/axios';
+import { useModal } from '../../context/ModalContext';
 import { Plus, Edit, Trash2, Star, Clock, Sparkles, Eye, EyeOff } from 'lucide-react';
 
 const AdminPlans = () => {
+  const { showAlert, showConfirm } = useModal();
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -127,9 +129,10 @@ const AdminPlans = () => {
       }
       setShowModal(false);
       fetchPlans();
+      await showAlert('Plan saved successfully!', 'success');
     } catch (err) {
       console.error('Error saving plan', err);
-      alert('Failed to save plan');
+      await showAlert('Failed to save plan. Please check inputs and try again.', 'error');
     }
   };
 
@@ -145,17 +148,23 @@ const AdminPlans = () => {
       fetchPlans();
     } catch (err) {
       console.error('Error toggling plan status', err);
-      alert('Failed to update plan status');
+      await showAlert('Failed to update plan status.', 'error');
     }
   };
 
   const handleArchive = async (id) => {
-    if (window.confirm('Are you sure you want to archive this plan?')) {
+    const confirmed = await showConfirm(
+      'Are you sure you want to archive this plan? It will no longer be visible to users.',
+      { title: 'Archive Plan', confirmText: 'Archive', type: 'warning' }
+    );
+    if (confirmed) {
       try {
         await api.delete(`/plans/${id}`);
         fetchPlans();
+        await showAlert('Plan archived successfully.', 'info');
       } catch (err) {
         console.error('Error archiving plan', err);
+        await showAlert('Failed to archive plan.', 'error');
       }
     }
   };
