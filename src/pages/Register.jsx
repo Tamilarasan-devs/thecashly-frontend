@@ -3,6 +3,7 @@ import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Wallet, Smartphone, Lock, User, ArrowRight, Eye, EyeOff, AlertCircle, X, Loader2, Ticket, CheckCircle2, Gift } from 'lucide-react';
 import api from '../lib/axios';
+import CashlyLogo from '../components/CashlyLogo';
 
 const Register = () => {
   const [searchParams] = useSearchParams();
@@ -124,27 +125,25 @@ const Register = () => {
 
   return (
     <div className="relative min-h-screen flex items-center justify-center p-4 sm:p-6 overflow-hidden">
-      {/* Background Image with Dark Ambient Overlay for Perfect Contrast */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat scale-105 transition-transform duration-1000"
-        style={{ backgroundImage: "url('https://res.cloudinary.com/nu6opo9c/image/upload/v1793888013/Glossy_Orange_Rupee_Finance_Template.png')" }}
-      />
-      <div className="absolute inset-0 bg-gradient-to-b from-black/25 via-black/35 to-black/60 backdrop-blur-[2px]" />
+      {/* Modern High-Tech Deep Royal Indigo & Cyan Background with Ambient Glow */}
+      <div className="absolute inset-0 bg-[#0B0F19]">
+        <div className="absolute top-[-10%] left-[-10%] w-[55%] h-[55%] bg-gradient-to-br from-[#4F46E5]/30 to-[#2563EB]/15 rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[55%] h-[55%] bg-gradient-to-tl from-[#06B6D4]/25 to-[#38BDF8]/15 rounded-full blur-[130px] pointer-events-none" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70%] h-[70%] bg-radial from-[#1E1B4B]/50 to-transparent blur-[100px] pointer-events-none" />
+      </div>
 
       <div className="relative z-10 w-full max-w-[460px]">
         {/* Logo/Icon */}
         <div className="flex justify-center mb-6">
-          <div className="w-16 h-16 bg-white/90 backdrop-blur-2xl rounded-2xl flex items-center justify-center shadow-[0_12px_36px_rgba(0,0,0,0.25)] border border-white/80 transform hover:scale-105 transition-all duration-300">
-            <div className="w-11 h-11 bg-gradient-to-tr from-[#EA580C] to-[#F97316] rounded-xl flex items-center justify-center shadow-md">
-              <Wallet size={24} className="text-white" />
-            </div>
+          <div className="w-16 h-16 bg-white/10 backdrop-blur-2xl rounded-2xl flex items-center justify-center shadow-[0_12px_36px_rgba(6,182,212,0.25)] border border-cyan-400/30 transform hover:scale-105 transition-all duration-300">
+            <CashlyLogo size={46} className="rounded-xl shadow-lg" />
           </div>
         </div>
 
         {/* Frosted Glass Card Container */}
-        <div className="rounded-[32px] bg-white/85 backdrop-blur-2xl border border-white/60 shadow-[0_20px_50px_rgba(0,0,0,0.25)] p-7 sm:p-9 transition-all">
+        <div className="rounded-[32px] bg-white/95 backdrop-blur-2xl border border-white/80 shadow-[0_25px_60px_rgba(15,23,42,0.35)] p-7 sm:p-9 transition-all">
           <div className="text-center mb-7">
-            <h1 className="text-2xl sm:text-3xl font-black text-[#090A0F] tracking-tight mb-2">Join The Cashly</h1>
+            <h1 className="text-2xl sm:text-3xl font-black text-[#0F172A] tracking-tight mb-2">Join The Cashly</h1>
             <p className="text-slate-600 text-sm font-semibold">Create your account to start earning</p>
           </div>
           
@@ -166,7 +165,7 @@ const Register = () => {
                 {fieldError === 'phone' && error.includes('already exists') && (
                   <Link 
                     to="/login" 
-                    className="inline-block mt-2 text-xs font-bold text-[#EA580C] hover:underline"
+                    className="inline-block mt-2 text-xs font-bold text-[#0284C7] hover:underline"
                   >
                     Already have an account? Sign in here &rarr;
                   </Link>
@@ -197,7 +196,7 @@ const Register = () => {
                   className={`w-full bg-white/90 border ${
                     fieldError === 'name' 
                       ? 'border-red-400 bg-red-50/40 ring-2 ring-red-100 focus:border-red-500 focus:ring-red-200' 
-                      : 'border-slate-200 focus:border-[#EA580C] focus:ring-2 focus:ring-orange-500/20'
+                      : 'border-slate-200 focus:border-[#0284C7] focus:ring-2 focus:ring-cyan-500/20'
                   } text-slate-900 placeholder-slate-400 rounded-full py-3.5 pl-11 pr-4 focus:outline-none focus:bg-white transition-all font-medium shadow-sm text-sm`}
                   value={name}
                   onChange={handleNameChange}
@@ -228,7 +227,7 @@ const Register = () => {
                   className={`w-full bg-white/90 border ${
                     fieldError === 'phone' 
                       ? 'border-red-400 bg-red-50/40 ring-2 ring-red-100 focus:border-red-500 focus:ring-red-200' 
-                      : 'border-slate-200 focus:border-[#EA580C] focus:ring-2 focus:ring-orange-500/20'
+                      : 'border-slate-200 focus:border-[#0284C7] focus:ring-2 focus:ring-cyan-500/20'
                   } text-slate-900 placeholder-slate-400 rounded-full py-3.5 pl-20 pr-4 focus:outline-none focus:bg-white transition-all font-semibold tracking-wider shadow-sm text-sm`}
                   value={phone}
                   onChange={handlePhoneChange}
@@ -255,7 +254,7 @@ const Register = () => {
                   className={`w-full bg-white/90 border ${
                     fieldError === 'password' 
                       ? 'border-red-400 bg-red-50/40 ring-2 ring-red-100 focus:border-red-500 focus:ring-red-200' 
-                      : 'border-slate-200 focus:border-[#EA580C] focus:ring-2 focus:ring-orange-500/20'
+                      : 'border-slate-200 focus:border-[#0284C7] focus:ring-2 focus:ring-cyan-500/20'
                   } text-slate-900 placeholder-slate-400 rounded-full py-3.5 pl-11 pr-11 focus:outline-none focus:bg-white transition-all font-medium shadow-sm text-sm`}
                   value={password}
                   onChange={handlePasswordChange}
@@ -283,7 +282,7 @@ const Register = () => {
                 <button
                   type="button"
                   onClick={() => setShowReferralInput(true)}
-                  className="text-xs font-bold text-[#EA580C] hover:text-[#C2410C] transition-colors flex items-center gap-1.5"
+                  className="text-xs font-bold text-[#0284C7] hover:text-[#0369A1] transition-colors flex items-center gap-1.5"
                 >
                   <Ticket size={14} />
                   Have a referral code?
@@ -334,7 +333,7 @@ const Register = () => {
                         ? 'border-red-400 bg-red-50/40 ring-2 ring-red-100 focus:border-red-500 focus:ring-red-200' 
                         : refInfo.valid
                           ? 'border-emerald-400 bg-emerald-50/30 ring-2 ring-emerald-100 focus:border-emerald-500 focus:ring-emerald-200'
-                          : 'border-slate-200 focus:border-[#EA580C] focus:ring-2 focus:ring-orange-500/20'
+                          : 'border-slate-200 focus:border-[#0284C7] focus:ring-2 focus:ring-cyan-500/20'
                     } text-slate-900 placeholder-slate-400 rounded-full py-3.5 pl-11 pr-10 focus:outline-none focus:bg-white transition-all font-bold tracking-wider shadow-sm text-sm`}
                     value={referralCode}
                     onChange={(e) => {
@@ -381,7 +380,7 @@ const Register = () => {
             <button 
               type="submit" 
               disabled={loading}
-              className="w-full bg-gradient-to-r from-[#EA580C] via-[#F97316] to-[#EF4444] text-white rounded-full py-4 text-sm font-black shadow-[0_10px_25px_rgba(234,88,12,0.35)] hover:shadow-[0_12px_30px_rgba(234,88,12,0.5)] hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center justify-center gap-2 mt-4 disabled:opacity-70 disabled:hover:translate-y-0 disabled:cursor-not-allowed tracking-wide cursor-pointer"
+              className="w-full bg-gradient-to-r from-[#1E1B4B] via-[#2563EB] to-[#06B6D4] text-white rounded-full py-4 text-sm font-black shadow-[0_10px_25px_rgba(37,99,235,0.35)] hover:shadow-[0_12px_30px_rgba(6,182,212,0.45)] hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center justify-center gap-2 mt-4 disabled:opacity-70 disabled:hover:translate-y-0 disabled:cursor-not-allowed tracking-wide cursor-pointer"
             >
               {loading ? (
                 <>
@@ -399,7 +398,7 @@ const Register = () => {
           
           <p className="mt-6 text-center text-sm font-semibold text-slate-600">
             Already have an account?{' '}
-            <Link to="/login" className="font-black text-[#EA580C] hover:text-[#C2410C] hover:underline decoration-2 underline-offset-2">
+            <Link to="/login" className="font-black text-[#0284C7] hover:text-[#0369A1] hover:underline decoration-2 underline-offset-2">
               Sign in
             </Link>
           </p>
