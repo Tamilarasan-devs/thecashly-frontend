@@ -75,7 +75,6 @@ const AddCash = () => {
   const [submitting, setSubmitting] = useState(false);
   const [copied, setCopied] = useState(false);
   const [statusMsg, setStatusMsg] = useState({ text: '', type: '' });
-  const [showSandbox, setShowSandbox] = useState(false);
   const [showUtrHelp, setShowUtrHelp] = useState(false);
   const [qrMode, setQrMode] = useState('default'); // 'default' (admin QR) or 'dynamic' (amount QR)
 
@@ -328,38 +327,6 @@ const AddCash = () => {
         text: err.response?.data?.error || 'Failed to submit deposit. Please check UTR and try again.',
         type: 'error'
       });
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  // Optional Sandbox Instant Simulation for Testing
-  const handleSandboxPay = async () => {
-    const numAmount = parseFloat(amount);
-    if (!numAmount || numAmount < 100) {
-      setStatusMsg({ text: 'Enter an amount of at least ₹100', type: 'error' });
-      return;
-    }
-
-    setSubmitting(true);
-    try {
-      const initRes = await api.post('/topups/init', { amount: Math.round(numAmount * 100) });
-      if (initRes.data.success) {
-        const verifyRes = await api.post('/topups/verify-sandbox', {
-          topUpId: initRes.data.data.topUpId,
-          status: 'success',
-          gatewayReference: 'TEST_SANDBOX_' + Date.now()
-        });
-
-        if (verifyRes.data.success) {
-          setStatusMsg({ text: `Sandbox wallet credit of ₹${numAmount} successful!`, type: 'success' });
-          setAmount('');
-          await fetchUser();
-          await fetchUserTopUps();
-        }
-      }
-    } catch (err) {
-      setStatusMsg({ text: err.response?.data?.error || err.message, type: 'error' });
     } finally {
       setSubmitting(false);
     }
@@ -919,37 +886,6 @@ const AddCash = () => {
               )}
             </button>
           </form>
-
-          {/* Sandbox Dev Mode Toggle */}
-          {/* <div className="pt-2 text-center border-t border-gray-100">
-            <button
-              type="button"
-              onClick={() => setShowSandbox(!showSandbox)}
-              className="text-[11px] font-bold text-gray-400 hover:text-gray-600 underline cursor-pointer"
-            >
-              {showSandbox ? 'Hide Sandbox Test Option' : ''}
-            </button>
-
-            {showSandbox && (
-              <div className="mt-3 p-4 bg-amber-50 rounded-2xl border border-amber-200 text-left space-y-2">
-                <div className="flex items-center gap-2 text-amber-800 font-bold text-xs">
-                  <ShieldCheck size={16} />
-                  <span>Sandbox Instant Credit Test</span>
-                </div>
-                <p className="text-[11px] text-amber-700">
-                  For development/testing: enter an amount in Step 1 and click below to simulate an immediate credit without bank verification.
-                </p>
-                <button
-                  type="button"
-                  onClick={handleSandboxPay}
-                  disabled={submitting || !amount}
-                  className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold transition disabled:opacity-50 cursor-pointer"
-                >
-                  Instant Sandbox Credit ₹{amount || '0'}
-                </button>
-              </div>
-            )}
-          </div> */}
         </div>
       </div>
 

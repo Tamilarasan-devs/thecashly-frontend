@@ -46,9 +46,9 @@ const PageFallback = () => (
 const ProtectedRoute = ({ children, roleRequired }) => {
   const { user, loading } = useAuth();
   
-  if (loading) return null;
-  if (!user) return <Navigate to="/login" />;
-  if (roleRequired && user.role !== roleRequired) return <Navigate to="/" />;
+  if (loading) return <PageFallback />;
+  if (!user) return <Navigate to="/login" replace />;
+  if (roleRequired && user.role !== roleRequired) return <Navigate to="/" replace />;
   
   return children;
 };
