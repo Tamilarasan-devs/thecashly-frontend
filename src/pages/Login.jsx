@@ -75,12 +75,16 @@ const Login = () => {
 
   return (
     <div className="relative min-h-screen flex items-center justify-center p-4 sm:p-6 overflow-hidden">
-      {/* Modern High-Tech Deep Royal Indigo & Cyan Background with Ambient Glow */}
-      <div className="absolute inset-0 bg-[#0B0F19]">
-        <div className="absolute top-[-10%] left-[-10%] w-[55%] h-[55%] bg-gradient-to-br from-[#4F46E5]/30 to-[#2563EB]/15 rounded-full blur-[120px] pointer-events-none" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[55%] h-[55%] bg-gradient-to-tl from-[#06B6D4]/25 to-[#38BDF8]/15 rounded-full blur-[130px] pointer-events-none" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70%] h-[70%] bg-radial from-[#1E1B4B]/50 to-transparent blur-[100px] pointer-events-none" />
-      </div>
+      {/* Background Image with High-Tech Indigo & Cyan Tinting and Contrast Overlay */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat scale-105 transition-transform duration-1000"
+        style={{ backgroundImage: "url('https://res.cloudinary.com/nu6opo9c/image/upload/v1793888013/Glossy_Orange_Rupee_Finance_Template.png')" }}
+      />
+      {/* Royal Indigo & Cyan Gradient Tinting Overlays to match the new theme */}
+      <div className="absolute inset-0 bg-gradient-to-tr from-[#0F172A]/85 via-[#1E1B4B]/70 to-[#0284C7]/40 mix-blend-multiply" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-[#0B0F19]/50 to-black/75 backdrop-blur-[1.5px]" />
+      <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-[#4F46E5]/25 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-[#06B6D4]/25 rounded-full blur-[100px] pointer-events-none" />
 
       <div className="relative z-10 w-full max-w-[440px]">
         {/* Logo/Icon */}
