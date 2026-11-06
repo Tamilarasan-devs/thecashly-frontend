@@ -1,6 +1,7 @@
 import React from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { Home, ShoppingBag, CirclePlus, LayoutGrid, User, Wallet } from 'lucide-react';
+import CashlyLogo from '../components/CashlyLogo';
 
 const CustomerLayout = () => {
   const location = useLocation();
@@ -13,10 +14,8 @@ const CustomerLayout = () => {
       {location.pathname !== '/' && !isGame && (
         <header className="sticky top-0 z-30 bg-white px-5 py-4 text-[#0F172A] shadow-[0_2px_10px_rgb(0,0,0,0.05)]">
           <div className="mx-auto flex max-w-5xl items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-[#4A3AFF] rounded-[10px] flex items-center justify-center shadow-md">
-                <Wallet size={18} className="text-white" fill="currentColor" />
-              </div>
+            <div className="flex items-center gap-2.5">
+              <CashlyLogo size={34} className="shadow-md rounded-[10px]" />
               <h1 className="text-xl font-extrabold text-[#0F172A] tracking-tight">The Cashly</h1>
             </div>
             {/* We can add notifications or profile pic here */}

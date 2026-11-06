@@ -6,6 +6,7 @@ import { Bell, User, Eye, Wallet, Package, Calendar, ArrowRight, Star, Rocket, G
 import api from '../lib/axios';
 import ProductCard from '../components/ProductCard';
 import AnnouncementModal from '../components/AnnouncementModal';
+import CashlyLogo from '../components/CashlyLogo';
 
 const Home = () => {
   const { user, fetchUser } = useAuth();
@@ -134,9 +135,7 @@ const Home = () => {
         {/* Top Header */}
         <header className="flex items-center justify-between">
           <div className="flex items-center gap-2 bg-white/50 backdrop-blur-sm pr-4 pl-1.5 py-1.5 rounded-full shadow-sm border border-white/60">
-            <div className="w-8 h-8 bg-[#4A3AFF] rounded-[10px] flex items-center justify-center shadow-md">
-              <Wallet size={18} className="text-white" fill="currentColor" />
-            </div>
+            <CashlyLogo size={32} className="rounded-[10px] shadow-sm" />
             <h1 className="text-xl font-extrabold text-[#0F172A] tracking-tight">The Cashly</h1>
           </div>
           <div className="flex items-center space-x-3">

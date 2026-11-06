@@ -6,14 +6,16 @@
 }
 
 @theme {
-  /* UI Colors based on reference image */
+  /* High-Tech Royal Indigo & Cyan Digital Banking Theme */
   --color-bg-light: #F8FAFC;
   --color-text-main: #0F172A;
   --color-text-muted: #64748B;
   
-  --color-brand-blue: #4A3AFF;
-  --color-brand-blue-dark: #1E1B4B;
-  --color-brand-blue-light: #818CF8;
+  --color-brand-blue: #3B82F6;
+  --color-brand-blue-dark: #0F172A;
+  --color-brand-blue-light: #38BDF8;
+  --color-brand-cyan: #06B6D4;
+  --color-brand-indigo: #4F46E5;
   
   --color-success: #10B981;
   --color-success-bg: #D1FAE5;
@@ -38,17 +40,21 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Gradients matching the UI */
+/* Gradients matching the Royal Indigo & Electric Cyan UI */
 .blue-gradient {
-  background: linear-gradient(135deg, #5C43FF 0%, #2563EB 100%);
+  background: linear-gradient(135deg, #4F46E5 0%, #2563EB 50%, #06B6D4 100%);
+}
+
+.cyan-gradient {
+  background: linear-gradient(135deg, #0284C7 0%, #06B6D4 50%, #38BDF8 100%);
 }
 
 .orange-pink-gradient {
-  background: linear-gradient(135deg, #FDE68A 0%, #FCA5A5 100%);
+  background: linear-gradient(135deg, #38BDF8 0%, #818CF8 100%);
 }
 
 .active-plan-gradient {
-  background: linear-gradient(135deg, #60A5FA 0%, #818CF8 100%);
+  background: linear-gradient(135deg, #2563EB 0%, #06B6D4 100%);
 }
 
 /* Glassmorphism panels */

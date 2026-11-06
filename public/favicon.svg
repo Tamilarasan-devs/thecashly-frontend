@@ -1,58 +1,95 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
   <defs>
-    <!-- Background Circle Radial Gradient -->
-    <radialGradient id="coinGrad" cx="35%" cy="30%" r="70%">
-      <stop offset="0%" stop-color="#FFA84A"/>
-      <stop offset="45%" stop-color="#FF6B00"/>
-      <stop offset="85%" stop-color="#D9480F"/>
-      <stop offset="100%" stop-color="#9C2C00"/>
-    </radialGradient>
-
-    <!-- Glossy Highlight Gradient -->
-    <linearGradient id="glossGrad" x1="0%" y1="0%" x2="50%" y2="100%">
-      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.6"/>
-      <stop offset="50%" stop-color="#FFA05C" stop-opacity="0.15"/>
-      <stop offset="100%" stop-color="#FF5500" stop-opacity="0"/>
+    <!-- Background Gradient: Deep Royal Indigo / Midnight Navy -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1E1B4B" />
+      <stop offset="50%" stop-color="#0F172A" />
+      <stop offset="100%" stop-color="#020617" />
     </linearGradient>
 
-    <!-- Inner Symbol Gradient -->
-    <linearGradient id="goldSymbol" x1="20%" y1="0%" x2="80%" y2="100%">
-      <stop offset="0%" stop-color="#FFFFFF"/>
-      <stop offset="20%" stop-color="#FFF3D6"/>
-      <stop offset="60%" stop-color="#FFD166"/>
-      <stop offset="100%" stop-color="#FFAA00"/>
+    <!-- Glowing Indigo to Cyan Accent for the Monogram 'C' -->
+    <linearGradient id="cArcGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#4F46E5" />
+      <stop offset="40%" stop-color="#2563EB" />
+      <stop offset="80%" stop-color="#06B6D4" />
+      <stop offset="100%" stop-color="#22D3EE" />
     </linearGradient>
 
-    <!-- Subtle Glow Shadow -->
-    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%" filterUnits="userSpaceOnUse">
-      <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#FF5500" flood-opacity="0.5"/>
+    <!-- Upward Growth Arrow Gradient (Vibrant Cyan / Electric Neon) -->
+    <linearGradient id="arrowGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0284C7" />
+      <stop offset="50%" stop-color="#06B6D4" />
+      <stop offset="100%" stop-color="#38BDF8" />
+    </linearGradient>
+
+    <!-- Inner Core Sheen Gradient -->
+    <linearGradient id="sheenGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#38BDF8" stop-opacity="0.1" />
+    </linearGradient>
+
+    <!-- Drop Glow Filter for Modern Fintech Neon Look -->
+    <filter id="neonGlow" x="-30%" y="-30%" width="160%" height="160%" filterUnits="userSpaceOnUse">
+      <feGaussianBlur stdDeviation="3.5" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
     </filter>
 
-    <filter id="innerGlow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#731A00" flood-opacity="0.6"/>
+    <filter id="subtleShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000000" flood-opacity="0.4"/>
     </filter>
   </defs>
 
-  <!-- Outer Ambient Glow / Coin Rim -->
-  <circle cx="50" cy="50" r="46" fill="url(#coinGrad)" filter="url(#glow)"/>
-  <circle cx="50" cy="50" r="44.5" stroke="#FFE2A4" stroke-width="1.8" stroke-opacity="0.8"/>
-  <circle cx="50" cy="50" r="41" stroke="#AA2E00" stroke-width="1.2" stroke-opacity="0.5"/>
+  <!-- Squircle / Rounded Badge Background -->
+  <rect x="4" y="4" width="92" height="92" rx="26" fill="url(#bgGrad)" filter="url(#subtleShadow)" />
+  <rect x="4.5" y="4.5" width="91" height="91" rx="25.5" stroke="#38BDF8" stroke-width="1.2" stroke-opacity="0.35" />
 
-  <!-- Glossy Upper Arc Sheen -->
-  <path d="M12 42 C16 20, 34 10, 50 10 C66 10, 84 20, 88 42 C70 32, 30 32, 12 42 Z" fill="url(#glossGrad)"/>
+  <!-- Outer Ambient Ring Segment -->
+  <circle cx="50" cy="50" r="38" stroke="url(#cArcGrad)" stroke-width="1.5" stroke-dasharray="4 6" opacity="0.3" />
 
-  <!-- Stylized Rupee Currency Symbol with Modern Fintech Sleek Edges -->
-  <g filter="url(#innerGlow)">
-    <!-- Top Horizontal Bar -->
-    <path d="M33 26 H67 C68.6 26, 70 27.4, 70 29 C70 30.6, 68.6 32, 67 32 H33 C31.4 32, 30 30.6, 30 29 C30 27.4, 31.4 26, 33 26 Z" fill="url(#goldSymbol)"/>
+  <g filter="url(#neonGlow)">
+    <!-- Geometric 'C' Monogram: Smooth thick curved sweep opening to the right -->
+    <!-- Arc from top-right down around left to bottom-right -->
+    <path 
+      d="M 64 34
+         C 58 24, 46 22, 36 26
+         C 23 31, 19 46, 22 60
+         C 25 73, 38 80, 52 79
+         C 61 78, 68 73, 71 66
+         C 72.5 63, 70.5 59.5, 67 59.5
+         C 64.5 59.5, 62.5 61, 60.5 63.5
+         C 54.5 70, 41 68, 34 60
+         C 28 53, 30 40, 39 34
+         C 45 30, 54 30, 60 34
+         C 62.5 35.8, 65.5 35, 66.8 32.5
+         C 67.5 31, 66.5 29, 64 34 Z" 
+      fill="url(#cArcGrad)"
+    />
 
-    <!-- Second Horizontal Bar -->
-    <path d="M33 39 H61 C62.6 39, 64 40.4, 64 42 C64 43.6, 62.6 45, 61 45 H33 C31.4 45, 30 43.6, 30 42 C30 40.4, 31.4 39, 33 39 Z" fill="url(#goldSymbol)"/>
+    <!-- Growth Trend Arrow launching upward-right through the 'C' -->
+    <!-- Dynamic diagonal bar -->
+    <path 
+      d="M 40 60
+         L 67 33"
+      stroke="url(#arrowGrad)" 
+      stroke-width="5" 
+      stroke-linecap="round"
+    />
 
-    <!-- Central Stem & Upper Curved Bowl & Diagonal Leg -->
-    <path d="M43 28 V43 C49 43, 58 41, 58 50 C58 57.5, 51.5 59, 44 59 H39 L57.5 76 C58.8 77.3, 58.8 79.4, 57.5 80.7 C56.2 82, 54.1 82, 52.8 80.7 L31.5 60 C30.6 59.1, 30.3 57.8, 30.8 56.6 C31.3 55.4, 32.5 54.6, 33.8 54.6 H44 C47.5 54.6, 51.5 54, 51.5 50 C51.5 46.2, 47.5 46, 43 46 H34 C32 46, 30.5 44.5, 30.5 42.5 C30.5 40.5, 32 39, 34 39 H37 V28 Z" fill="url(#goldSymbol)"/>
+    <!-- Arrow Head pointing to top-right (Growth) -->
+    <path 
+      d="M 53 31 
+         H 71 
+         C 72.1 31, 73 31.9, 73 33 
+         V 51 
+         L 66 44 
+         L 66 38 
+         L 60 38 
+         Z" 
+      fill="url(#arrowGrad)"
+    />
+
+    <!-- Dot Sparkle Accent at arrowhead tip -->
+    <circle cx="73" cy="31" r="3" fill="#FFFFFF" opacity="0.95" />
+    <circle cx="73" cy="31" r="5" stroke="#38BDF8" stroke-width="1" opacity="0.6" />
   </g>
-
-  <!-- Sparkle Accent in top right -->
-  <path d="M72 18 C72 23, 75 25, 78 26 C75 27, 72 29, 72 34 C72 29, 69 27, 66 26 C69 25, 72 23, 72 18 Z" fill="#FFFFFF" opacity="0.85"/>
 </svg>

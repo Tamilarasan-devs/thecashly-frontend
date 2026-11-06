@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { LayoutDashboard, ListPlus, Banknote, Users, MessageSquare, LogOut, Menu, X, Wallet, PlusCircle, QrCode, FileText, Gift } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import CashlyLogo from '../components/CashlyLogo';
 
 const AdminLayout = () => {
   const location = useLocation();
@@ -38,10 +39,8 @@ const AdminLayout = () => {
         
         {/* Sidebar Header */}
         <div className="h-20 flex items-center px-8 border-b border-gray-50 justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-9 h-9 bg-[#4A3AFF] rounded-xl flex items-center justify-center shadow-md shadow-[#4A3AFF]/20">
-              <Wallet size={20} className="text-white" fill="currentColor" />
-            </div>
+          <div className="flex items-center gap-2.5">
+            <CashlyLogo size={36} className="rounded-xl shadow-md" />
             <h1 className="text-2xl font-extrabold text-[#0F172A] tracking-tight">The Cashly</h1>
           </div>
           <button className="lg:hidden text-gray-400 hover:text-gray-600" onClick={closeMobileMenu}>
