@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Wallet, Mail, Lock, ArrowRight, Eye, EyeOff, AlertCircle, X, Loader2 } from 'lucide-react';
+import { Wallet, Smartphone, Lock, ArrowRight, Eye, EyeOff, AlertCircle, X, Loader2 } from 'lucide-react';
 
 const Login = () => {
-  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [fieldError, setFieldError] = useState(''); // 'email' | 'password' | 'all' | 'general' | ''
+  const [fieldError, setFieldError] = useState(''); // 'phone' | 'password' | 'all' | 'general' | ''
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [shakeKey, setShakeKey] = useState(0);
@@ -19,10 +19,11 @@ const Login = () => {
     setError('');
     setFieldError('');
 
-    const cleanEmail = email.trim();
-    if (!cleanEmail) {
-      setError('Please enter your email address.');
-      setFieldError('email');
+    const rawPhone = phone.trim();
+    const cleanPhone = rawPhone.replace(/\D/g, '').slice(-10);
+    if (!cleanPhone || cleanPhone.length !== 10) {
+      setError('Please enter a valid 10-digit mobile number.');
+      setFieldError('phone');
       setShakeKey((k) => k + 1);
       return;
     }
@@ -35,7 +36,7 @@ const Login = () => {
 
     setLoading(true);
     try {
-      const res = await login(cleanEmail, password);
+      const res = await login(cleanPhone, password);
       if (res.success) {
         if (res.data.role === 'admin') {
           navigate('/admin');
@@ -54,9 +55,10 @@ const Login = () => {
     }
   };
 
-  const handleEmailChange = (e) => {
-    setEmail(e.target.value);
-    if (fieldError === 'email' || fieldError === 'all') {
+  const handlePhoneChange = (e) => {
+    const val = e.target.value.replace(/\D/g, '').slice(0, 10);
+    setPhone(val);
+    if (fieldError === 'phone' || fieldError === 'all') {
       setFieldError('');
       setError('');
     }
@@ -71,29 +73,29 @@ const Login = () => {
   };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Background Image */}
+    <div className="relative min-h-screen flex items-center justify-center p-4 sm:p-6 overflow-hidden">
+      {/* Background Image with Dark Ambient Overlay for Perfect Contrast */}
       <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: "url('https://res.cloudinary.com/dizbpr8pc/image/upload/v1791378622/bg_zm0475.png')" }}
-      >
-      </div>
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat scale-105 transition-transform duration-1000"
+        style={{ backgroundImage: "url('https://res.cloudinary.com/nu6opo9c/image/upload/v1793888013/Glossy_Orange_Rupee_Finance_Template.png')" }}
+      />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/25 via-black/35 to-black/60 backdrop-blur-[2px]" />
 
-      <div className="relative z-10 w-full max-w-md px-5">
+      <div className="relative z-10 w-full max-w-[440px]">
         {/* Logo/Icon */}
-        <div className="flex justify-center mb-8">
-          <div className="w-16 h-16 bg-white/40 backdrop-blur-xl rounded-[20px] flex items-center justify-center shadow-[0_8px_32px_rgba(0,0,0,0.12)] border border-gray-200">
-            <div className="w-12 h-12 bg-white rounded-[14px] flex items-center justify-center shadow-inner">
-              <Wallet size={28} className="text-[#4A3AFF]" fill="currentColor" />
+        <div className="flex justify-center mb-6">
+          <div className="w-16 h-16 bg-white/90 backdrop-blur-2xl rounded-2xl flex items-center justify-center shadow-[0_12px_36px_rgba(0,0,0,0.25)] border border-white/80 transform hover:scale-105 transition-all duration-300">
+            <div className="w-11 h-11 bg-gradient-to-tr from-[#EA580C] to-[#F97316] rounded-xl flex items-center justify-center shadow-md">
+              <Wallet size={24} className="text-white" />
             </div>
           </div>
         </div>
 
-        {/* Form Container (No Card) */}
-        <div className="p-8">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight mb-2">Welcome Back</h1>
-            <p className="text-gray-700 text-sm font-medium">Log in to access your dashboard</p>
+        {/* Frosted Glass Card Container */}
+        <div className="rounded-[32px] bg-white/85 backdrop-blur-2xl border border-white/60 shadow-[0_20px_50px_rgba(0,0,0,0.25)] p-7 sm:p-9 transition-all">
+          <div className="text-center mb-7">
+            <h1 className="text-2xl sm:text-3xl font-black text-[#090A0F] tracking-tight mb-2">Welcome Back</h1>
+            <p className="text-slate-600 text-sm font-semibold">Log in with your mobile number</p>
           </div>
           
           {error && (
@@ -106,15 +108,15 @@ const Login = () => {
               </div>
               <div className="flex-1 text-left">
                 <div className="font-bold text-red-900 text-xs uppercase tracking-wide mb-0.5">
-                  {fieldError === 'email' ? 'Email Not Found' : fieldError === 'password' ? 'Incorrect Password' : 'Login Error'}
+                  {fieldError === 'phone' ? 'Phone Not Found' : fieldError === 'password' ? 'Incorrect Password' : 'Login Error'}
                 </div>
                 <div className="text-xs text-red-700 leading-relaxed font-medium">
                   {error}
                 </div>
-                {fieldError === 'email' && (
+                {fieldError === 'phone' && (
                   <Link 
                     to="/register" 
-                    className="inline-block mt-2 text-xs font-bold text-[#4A3AFF] hover:underline"
+                    className="inline-block mt-2 text-xs font-bold text-[#EA580C] hover:underline"
                   >
                     Don't have an account? Sign up here &rarr;
                   </Link>
@@ -131,49 +133,53 @@ const Login = () => {
             </div>
           )}
           
-          <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+          <form onSubmit={handleSubmit} className="space-y-4" noValidate>
             <div className="space-y-1.5">
-              <label className="block text-xs font-bold text-gray-800 uppercase tracking-wider ml-1">Email Address</label>
+              <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider ml-1">Mobile Number</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center justify-center pointer-events-none">
-                  <Mail size={18} className={fieldError === 'email' || fieldError === 'all' ? "text-red-500" : "text-gray-500"} />
+                  <Smartphone size={18} className={fieldError === 'phone' || fieldError === 'all' ? "text-red-500" : "text-slate-400"} />
+                </div>
+                <div className="absolute inset-y-0 left-10 flex items-center pointer-events-none text-xs font-bold text-slate-500">
+                  +91
                 </div>
                 <input 
-                  type="email" 
+                  type="tel" 
                   required
-                  placeholder="Enter your email"
-                  className={`w-full bg-white/60 border ${
-                    fieldError === 'email' || fieldError === 'all' 
+                  placeholder="Enter 10-digit number"
+                  maxLength={10}
+                  className={`w-full bg-white/90 border ${
+                    fieldError === 'phone' || fieldError === 'all' 
                       ? 'border-red-400 bg-red-50/40 ring-2 ring-red-100 focus:border-red-500 focus:ring-red-200' 
-                      : 'border-gray-300 focus:border-[#4A3AFF]'
-                  } text-gray-900 placeholder-gray-500 rounded-2xl py-3.5 pl-11 pr-4 focus:outline-none focus:bg-white transition-all font-medium backdrop-blur-sm shadow-sm`}
-                  value={email}
-                  onChange={handleEmailChange}
-                  autoComplete="email"
+                      : 'border-slate-200 focus:border-[#EA580C] focus:ring-2 focus:ring-orange-500/20'
+                  } text-slate-900 placeholder-slate-400 rounded-full py-3.5 pl-20 pr-4 focus:outline-none focus:bg-white transition-all font-semibold tracking-wider shadow-sm text-sm`}
+                  value={phone}
+                  onChange={handlePhoneChange}
+                  autoComplete="tel"
                 />
               </div>
-              {fieldError === 'email' && (
+              {fieldError === 'phone' && (
                 <p className="text-xs font-semibold text-red-600 flex items-center gap-1 mt-1 ml-1">
-                  <AlertCircle size={13} /> Check email address
+                  <AlertCircle size={13} /> Check mobile number
                 </p>
               )}
             </div>
             
             <div className="space-y-1.5">
-              <label className="block text-xs font-bold text-gray-800 uppercase tracking-wider ml-1">Password</label>
+              <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider ml-1">Password</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center justify-center pointer-events-none">
-                  <Lock size={18} className={fieldError === 'password' || fieldError === 'all' ? "text-red-500" : "text-gray-500"} />
+                  <Lock size={18} className={fieldError === 'password' || fieldError === 'all' ? "text-red-500" : "text-slate-400"} />
                 </div>
                 <input 
                   type={showPassword ? 'text' : 'password'} 
                   required
                   placeholder="Enter your password"
-                  className={`w-full bg-white/60 border ${
+                  className={`w-full bg-white/90 border ${
                     fieldError === 'password' || fieldError === 'all' 
                       ? 'border-red-400 bg-red-50/40 ring-2 ring-red-100 focus:border-red-500 focus:ring-red-200' 
-                      : 'border-gray-300 focus:border-[#4A3AFF]'
-                  } text-gray-900 placeholder-gray-500 rounded-2xl py-3.5 pl-11 pr-11 focus:outline-none focus:bg-white transition-all font-medium backdrop-blur-sm shadow-sm`}
+                      : 'border-slate-200 focus:border-[#EA580C] focus:ring-2 focus:ring-orange-500/20'
+                  } text-slate-900 placeholder-slate-400 rounded-full py-3.5 pl-11 pr-11 focus:outline-none focus:bg-white transition-all font-medium shadow-sm text-sm`}
                   value={password}
                   onChange={handlePasswordChange}
                   autoComplete="current-password"
@@ -181,7 +187,7 @@ const Login = () => {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-500 hover:text-gray-700 transition-colors"
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-700 transition-colors"
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -194,14 +200,14 @@ const Login = () => {
               )}
             </div>
 
-            <div className="flex items-center justify-end pt-1">
-              <a href="#" className="text-xs font-bold text-gray-700 hover:text-gray-900 transition-colors">Forgot Password?</a>
+            <div className="flex items-center justify-end pt-0.5">
+              <a href="#" className="text-xs font-bold text-slate-600 hover:text-[#EA580C] transition-colors">Forgot Password?</a>
             </div>
 
             <button 
               type="submit" 
               disabled={loading}
-              className="w-full bg-[#0F172A] text-white rounded-2xl py-4 text-sm font-extrabold shadow-[0_10px_20px_rgba(15,23,42,0.2)] hover:shadow-[0_10px_25px_rgba(15,23,42,0.3)] hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 mt-2 disabled:opacity-70 disabled:hover:translate-y-0 disabled:cursor-not-allowed"
+              className="w-full bg-gradient-to-r from-[#EA580C] via-[#F97316] to-[#EF4444] text-white rounded-full py-4 text-sm font-black shadow-[0_10px_25px_rgba(234,88,12,0.35)] hover:shadow-[0_12px_30px_rgba(234,88,12,0.5)] hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center justify-center gap-2 mt-2 disabled:opacity-70 disabled:hover:translate-y-0 disabled:cursor-not-allowed tracking-wide cursor-pointer"
             >
               {loading ? (
                 <>
@@ -211,15 +217,15 @@ const Login = () => {
               ) : (
                 <>
                   <span>Sign In</span>
-                  <ArrowRight size={18} strokeWidth={3} />
+                  <ArrowRight size={18} strokeWidth={2.5} />
                 </>
               )}
             </button>
           </form>
           
-          <p className="mt-8 text-center text-sm font-medium text-gray-700">
+          <p className="mt-6 text-center text-sm font-semibold text-slate-600">
             Don't have an account?{' '}
-            <Link to="/register" className="font-extrabold text-gray-900 hover:underline decoration-2 underline-offset-2">
+            <Link to="/register" className="font-black text-[#EA580C] hover:text-[#C2410C] hover:underline decoration-2 underline-offset-2">
               Sign up now
             </Link>
           </p>

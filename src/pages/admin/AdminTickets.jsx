@@ -64,7 +64,7 @@ const AdminTickets = () => {
               <tr key={ticket._id}>
                 <td className="whitespace-nowrap px-6 py-4">
                   <div className="font-medium text-gray-900">{ticket.user?.name || 'Unknown'}</div>
-                  <div className="text-sm text-gray-500">{ticket.user?.email}</div>
+                  <div className="text-sm text-gray-500">{ticket.user?.phone ? '+91 ' + ticket.user.phone : ticket.user?.email}</div>
                 </td>
                 <td className="px-6 py-4">
                   <div className="text-sm font-bold text-[#0F172A]">{ticket.subject}</div>

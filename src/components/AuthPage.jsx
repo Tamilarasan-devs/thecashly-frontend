@@ -67,12 +67,10 @@ export default function AuthPage() {
     setIsLoading(true);
     setErrorMsg("");
     try {
-      const emailVal = signupData.mobileNumber.includes('@')
-        ? signupData.mobileNumber
-        : `${signupData.username.toLowerCase().replace(/[^a-z0-9]/g, '') || 'user'}@thecashly.com`;
+      const cleanPhone = signupData.mobileNumber.replace(/\D/g, '').slice(-10);
       const response = await api.post('/auth/register', {
         name: signupData.username,
-        email: emailVal,
+        phone: cleanPhone,
         password: signupData.password,
         referralCode: signupData.referralCode?.trim()?.toUpperCase() || undefined
       });

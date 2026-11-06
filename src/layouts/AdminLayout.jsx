@@ -81,7 +81,7 @@ const AdminLayout = () => {
             </div>
             <div className="flex-1 overflow-hidden">
               <p className="text-sm font-bold text-[#0F172A] truncate">{user?.name}</p>
-              <p className="text-xs text-gray-500 truncate">{user?.email}</p>
+              <p className="text-xs text-gray-500 truncate">{user?.phone || user?.email}</p>
             </div>
           </div>
           <button

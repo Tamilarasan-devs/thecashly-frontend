@@ -323,7 +323,7 @@ export default function ReferAndEarn() {
                       {refItem.name}
                     </span>
                     <span className="text-[11px] text-gray-400 font-medium">
-                      {new Date(refItem.createdAt).toLocaleDateString()} &middot; {refItem.email}
+                      {new Date(refItem.createdAt).toLocaleDateString()} &middot; {refItem.phone || refItem.email}
                     </span>
                   </div>
                 </div>

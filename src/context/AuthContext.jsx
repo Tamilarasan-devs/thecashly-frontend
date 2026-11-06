@@ -53,8 +53,15 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const login = async (email, password) => {
-    const res = await api.post('/auth/login', { email, password });
+  const login = async (phoneOrEmail, password) => {
+    const rawVal = phoneOrEmail?.trim() || '';
+    const cleanPhone = rawVal.replace(/\D/g, '').slice(-10);
+    const payload = {
+      phone: cleanPhone.length === 10 ? cleanPhone : rawVal,
+      email: rawVal,
+      password
+    };
+    const res = await api.post('/auth/login', payload);
     if (res.data.success) {
       setToken(res.data.data.token);
       setUser(res.data.data);
@@ -63,8 +70,14 @@ export const AuthProvider = ({ children }) => {
     return res.data;
   };
 
-  const register = async (name, email, password, referralCode = '') => {
-    const payload = { name, email, password };
+  const register = async (name, phone, password, referralCode = '') => {
+    const rawPhone = (phone || '').toString().trim();
+    const cleanPhone = rawPhone.replace(/\D/g, '').slice(-10);
+    const payload = { 
+      name, 
+      phone: cleanPhone, 
+      password 
+    };
     if (referralCode && referralCode.trim()) {
       payload.referralCode = referralCode.trim().toUpperCase();
     }

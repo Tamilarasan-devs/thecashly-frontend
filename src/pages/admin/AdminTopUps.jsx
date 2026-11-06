@@ -94,7 +94,7 @@ const AdminTopUps = () => {
     const matchesSearch =
       !query ||
       item.user?.name?.toLowerCase().includes(query) ||
-      item.user?.email?.toLowerCase().includes(query) ||
+      item.user?.phone ? '+91 ' + item.user.phone : item.user?.email?.toLowerCase().includes(query) ||
       item.utr?.toLowerCase().includes(query) ||
       item.gatewayReference?.toLowerCase().includes(query);
 
@@ -202,7 +202,7 @@ const AdminTopUps = () => {
                     {/* User */}
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="font-bold text-[#0F172A]">{item.user?.name || 'Unknown User'}</div>
-                      <div className="text-xs text-gray-500">{item.user?.email}</div>
+                      <div className="text-xs text-gray-500">{item.user?.phone ? '+91 ' + item.user.phone : item.user?.email}</div>
                       {item.user?.phone && <div className="text-[11px] text-gray-400">{item.user.phone}</div>}
                     </td>
 

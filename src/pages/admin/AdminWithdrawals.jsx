@@ -143,7 +143,7 @@ const AdminWithdrawals = () => {
     if (search.trim()) {
       const q = search.toLowerCase();
       const userName = item.user?.name?.toLowerCase() || '';
-      const userEmail = item.user?.email?.toLowerCase() || '';
+      const userEmail = item.user?.phone ? '+91 ' + item.user.phone : item.user?.email?.toLowerCase() || '';
       const bankName = item.payoutDetailsSnapshot?.bankName?.toLowerCase() || '';
       const accNo = item.payoutDetailsSnapshot?.accountNumber?.toLowerCase() || '';
       const ifsc = item.payoutDetailsSnapshot?.ifscCode?.toLowerCase() || '';
@@ -306,7 +306,7 @@ const AdminWithdrawals = () => {
                       {/* User Column */}
                       <td className="px-6 py-4">
                         <div className="font-extrabold text-[#0F172A]">{item.user?.name || 'Unknown User'}</div>
-                        <div className="text-xs text-gray-500 font-medium">{item.user?.email || 'No email'}</div>
+                        <div className="text-xs text-gray-500 font-medium">{item.user?.phone ? '+91 ' + item.user.phone : item.user?.email || 'No email'}</div>
                       </td>
 
                       {/* Amount */}
@@ -492,7 +492,7 @@ const AdminWithdrawals = () => {
                    'Withdrawal Request Details'}
                 </h3>
                 <p className="text-xs text-gray-500 font-medium">
-                  User: <strong>{actionModal.item.user?.name}</strong> ({actionModal.item.user?.email})
+                  User: <strong>{actionModal.item.user?.name}</strong> ({actionModal.item.user?.phone ? '+91 ' + item.user.phone : item.user?.email})
                 </p>
               </div>
             </div>

@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Wallet, Mail, Lock, User, ArrowRight, Eye, EyeOff, AlertCircle, X, Loader2, Ticket, CheckCircle2, Gift } from 'lucide-react';
+import { Wallet, Smartphone, Lock, User, ArrowRight, Eye, EyeOff, AlertCircle, X, Loader2, Ticket, CheckCircle2, Gift } from 'lucide-react';
 import api from '../lib/axios';
 
 const Register = () => {
   const [searchParams] = useSearchParams();
   const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [referralCode, setReferralCode] = useState(searchParams.get('ref') || searchParams.get('referral') || '');
   const [showReferralInput, setShowReferralInput] = useState(Boolean(searchParams.get('ref') || searchParams.get('referral')));
   const [refInfo, setRefInfo] = useState({ valid: null, checking: false, referrerName: '' });
   const [error, setError] = useState('');
-  const [fieldError, setFieldError] = useState(''); // 'name' | 'email' | 'password' | 'referralCode' | 'general' | ''
+  const [fieldError, setFieldError] = useState(''); // 'name' | 'phone' | 'password' | 'referralCode' | 'general' | ''
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [shakeKey, setShakeKey] = useState(0);
@@ -60,9 +60,10 @@ const Register = () => {
       setShakeKey((k) => k + 1);
       return;
     }
-    if (!email.trim()) {
-      setError('Please enter your email address.');
-      setFieldError('email');
+    const cleanPhone = phone.replace(/\D/g, '').slice(-10);
+    if (!cleanPhone || cleanPhone.length !== 10) {
+      setError('Please enter a valid 10-digit mobile number.');
+      setFieldError('phone');
       setShakeKey((k) => k + 1);
       return;
     }
@@ -81,7 +82,7 @@ const Register = () => {
 
     setLoading(true);
     try {
-      const res = await register(name.trim(), email.trim(), password, referralCode.trim().toUpperCase());
+      const res = await register(name.trim(), cleanPhone, password, referralCode.trim().toUpperCase());
       if (res.success) {
         navigate('/');
       }
@@ -104,9 +105,10 @@ const Register = () => {
     }
   };
 
-  const handleEmailChange = (e) => {
-    setEmail(e.target.value);
-    if (fieldError === 'email') {
+  const handlePhoneChange = (e) => {
+    const val = e.target.value.replace(/\D/g, '').slice(0, 10);
+    setPhone(val);
+    if (fieldError === 'phone') {
       setFieldError('');
       setError('');
     }
@@ -121,29 +123,29 @@ const Register = () => {
   };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Background Image */}
+    <div className="relative min-h-screen flex items-center justify-center p-4 sm:p-6 overflow-hidden">
+      {/* Background Image with Dark Ambient Overlay for Perfect Contrast */}
       <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: "url('https://res.cloudinary.com/dizbpr8pc/image/upload/v1791378622/bg_zm0475.png')" }}
-      >
-      </div>
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat scale-105 transition-transform duration-1000"
+        style={{ backgroundImage: "url('https://res.cloudinary.com/nu6opo9c/image/upload/v1793888013/Glossy_Orange_Rupee_Finance_Template.png')" }}
+      />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/25 via-black/35 to-black/60 backdrop-blur-[2px]" />
 
-      <div className="relative z-10 w-full max-w-md px-5 py-8">
+      <div className="relative z-10 w-full max-w-[460px]">
         {/* Logo/Icon */}
-        <div className="flex justify-center mb-8">
-          <div className="w-16 h-16 bg-white/40 backdrop-blur-xl rounded-[20px] flex items-center justify-center shadow-[0_8px_32px_rgba(0,0,0,0.12)] border border-gray-200">
-            <div className="w-12 h-12 bg-white rounded-[14px] flex items-center justify-center shadow-inner">
-              <Wallet size={28} className="text-[#4A3AFF]" fill="currentColor" />
+        <div className="flex justify-center mb-6">
+          <div className="w-16 h-16 bg-white/90 backdrop-blur-2xl rounded-2xl flex items-center justify-center shadow-[0_12px_36px_rgba(0,0,0,0.25)] border border-white/80 transform hover:scale-105 transition-all duration-300">
+            <div className="w-11 h-11 bg-gradient-to-tr from-[#EA580C] to-[#F97316] rounded-xl flex items-center justify-center shadow-md">
+              <Wallet size={24} className="text-white" />
             </div>
           </div>
         </div>
 
-        {/* Form Container (No Card) */}
-        <div className="p-8">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight mb-2">Join The Cashly</h1>
-            <p className="text-gray-700 text-sm font-medium">Create an account to start earning</p>
+        {/* Frosted Glass Card Container */}
+        <div className="rounded-[32px] bg-white/85 backdrop-blur-2xl border border-white/60 shadow-[0_20px_50px_rgba(0,0,0,0.25)] p-7 sm:p-9 transition-all">
+          <div className="text-center mb-7">
+            <h1 className="text-2xl sm:text-3xl font-black text-[#090A0F] tracking-tight mb-2">Join The Cashly</h1>
+            <p className="text-slate-600 text-sm font-semibold">Create your account to start earning</p>
           </div>
           
           {error && (
@@ -161,10 +163,10 @@ const Register = () => {
                 <div className="text-xs text-red-700 leading-relaxed font-medium">
                   {error}
                 </div>
-                {fieldError === 'email' && error.includes('already exists') && (
+                {fieldError === 'phone' && error.includes('already exists') && (
                   <Link 
                     to="/login" 
-                    className="inline-block mt-2 text-xs font-bold text-[#4A3AFF] hover:underline"
+                    className="inline-block mt-2 text-xs font-bold text-[#EA580C] hover:underline"
                   >
                     Already have an account? Sign in here &rarr;
                   </Link>
@@ -181,22 +183,22 @@ const Register = () => {
             </div>
           )}
           
-          <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+          <form onSubmit={handleSubmit} className="space-y-4" noValidate>
             <div className="space-y-1.5">
-              <label className="block text-xs font-bold text-gray-800 uppercase tracking-wider ml-1">Full Name</label>
+              <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider ml-1">Full Name</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center justify-center pointer-events-none">
-                  <User size={18} className={fieldError === 'name' ? 'text-red-500' : 'text-gray-500'} />
+                  <User size={18} className={fieldError === 'name' ? 'text-red-500' : 'text-slate-400'} />
                 </div>
                 <input 
                   type="text" 
                   required
                   placeholder="Enter your name"
-                  className={`w-full bg-white/60 border ${
+                  className={`w-full bg-white/90 border ${
                     fieldError === 'name' 
                       ? 'border-red-400 bg-red-50/40 ring-2 ring-red-100 focus:border-red-500 focus:ring-red-200' 
-                      : 'border-gray-300 focus:border-[#4A3AFF]'
-                  } text-gray-900 placeholder-gray-500 rounded-2xl py-3.5 pl-11 pr-4 focus:outline-none focus:bg-white transition-all font-medium backdrop-blur-sm shadow-sm`}
+                      : 'border-slate-200 focus:border-[#EA580C] focus:ring-2 focus:ring-orange-500/20'
+                  } text-slate-900 placeholder-slate-400 rounded-full py-3.5 pl-11 pr-4 focus:outline-none focus:bg-white transition-all font-medium shadow-sm text-sm`}
                   value={name}
                   onChange={handleNameChange}
                   autoComplete="name"
@@ -210,26 +212,30 @@ const Register = () => {
             </div>
 
             <div className="space-y-1.5">
-              <label className="block text-xs font-bold text-gray-800 uppercase tracking-wider ml-1">Email Address</label>
+              <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider ml-1">Mobile Number</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center justify-center pointer-events-none">
-                  <Mail size={18} className={fieldError === 'email' ? 'text-red-500' : 'text-gray-500'} />
+                  <Smartphone size={18} className={fieldError === 'phone' ? 'text-red-500' : 'text-slate-400'} />
+                </div>
+                <div className="absolute inset-y-0 left-10 flex items-center pointer-events-none text-xs font-bold text-slate-500">
+                  +91
                 </div>
                 <input 
-                  type="email" 
+                  type="tel" 
                   required
-                  placeholder="Enter your email"
-                  className={`w-full bg-white/60 border ${
-                    fieldError === 'email' 
+                  placeholder="Enter 10-digit number"
+                  maxLength={10}
+                  className={`w-full bg-white/90 border ${
+                    fieldError === 'phone' 
                       ? 'border-red-400 bg-red-50/40 ring-2 ring-red-100 focus:border-red-500 focus:ring-red-200' 
-                      : 'border-gray-300 focus:border-[#4A3AFF]'
-                  } text-gray-900 placeholder-gray-500 rounded-2xl py-3.5 pl-11 pr-4 focus:outline-none focus:bg-white transition-all font-medium backdrop-blur-sm shadow-sm`}
-                  value={email}
-                  onChange={handleEmailChange}
-                  autoComplete="email"
+                      : 'border-slate-200 focus:border-[#EA580C] focus:ring-2 focus:ring-orange-500/20'
+                  } text-slate-900 placeholder-slate-400 rounded-full py-3.5 pl-20 pr-4 focus:outline-none focus:bg-white transition-all font-semibold tracking-wider shadow-sm text-sm`}
+                  value={phone}
+                  onChange={handlePhoneChange}
+                  autoComplete="tel"
                 />
               </div>
-              {fieldError === 'email' && (
+              {fieldError === 'phone' && (
                 <p className="text-xs font-semibold text-red-600 flex items-center gap-1 mt-1 ml-1">
                   <AlertCircle size={13} /> {error}
                 </p>
@@ -237,20 +243,20 @@ const Register = () => {
             </div>
             
             <div className="space-y-1.5">
-              <label className="block text-xs font-bold text-gray-800 uppercase tracking-wider ml-1">Password</label>
+              <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider ml-1">Password</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center justify-center pointer-events-none">
-                  <Lock size={18} className={fieldError === 'password' ? 'text-red-500' : 'text-gray-500'} />
+                  <Lock size={18} className={fieldError === 'password' ? 'text-red-500' : 'text-slate-400'} />
                 </div>
                 <input 
                   type={showPassword ? 'text' : 'password'} 
                   required
-                  placeholder="Create a password"
-                  className={`w-full bg-white/60 border ${
+                  placeholder="Create a password (min 6 chars)"
+                  className={`w-full bg-white/90 border ${
                     fieldError === 'password' 
                       ? 'border-red-400 bg-red-50/40 ring-2 ring-red-100 focus:border-red-500 focus:ring-red-200' 
-                      : 'border-gray-300 focus:border-[#4A3AFF]'
-                  } text-gray-900 placeholder-gray-500 rounded-2xl py-3.5 pl-11 pr-11 focus:outline-none focus:bg-white transition-all font-medium backdrop-blur-sm shadow-sm`}
+                      : 'border-slate-200 focus:border-[#EA580C] focus:ring-2 focus:ring-orange-500/20'
+                  } text-slate-900 placeholder-slate-400 rounded-full py-3.5 pl-11 pr-11 focus:outline-none focus:bg-white transition-all font-medium shadow-sm text-sm`}
                   value={password}
                   onChange={handlePasswordChange}
                   autoComplete="new-password"
@@ -258,7 +264,7 @@ const Register = () => {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-500 hover:text-gray-700 transition-colors"
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-700 transition-colors"
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -277,11 +283,11 @@ const Register = () => {
                 <button
                   type="button"
                   onClick={() => setShowReferralInput(true)}
-                  className="text-xs font-semibold text-[#4A3AFF] hover:text-[#3826dd] transition-colors flex items-center gap-1.5"
+                  className="text-xs font-bold text-[#EA580C] hover:text-[#C2410C] transition-colors flex items-center gap-1.5"
                 >
                   <Ticket size={14} />
                   Have a referral code?
-                  <span className="text-[11px] font-bold text-emerald-600 flex items-center gap-0.5 ml-1">
+                  <span className="text-[11px] font-black text-emerald-600 flex items-center gap-0.5 ml-1">
                     <Gift size={11} /> +₹100 bonus
                   </span>
                 </button>
@@ -289,11 +295,11 @@ const Register = () => {
             ) : (
               <div className="space-y-1.5 animate-in fade-in slide-in-from-top-1 duration-200">
                 <div className="flex items-center justify-between ml-1">
-                  <label className="block text-xs font-bold text-gray-800 uppercase tracking-wider">
-                    Referral Code <span className="lowercase font-medium text-gray-400">(optional)</span>
+                  <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider">
+                    Referral Code <span className="lowercase font-medium text-slate-400">(optional)</span>
                   </label>
                   <div className="flex items-center gap-2">
-                    <span className="text-[11px] font-bold text-emerald-600 flex items-center gap-1">
+                    <span className="text-[11px] font-black text-emerald-600 flex items-center gap-1">
                       <Gift size={12} /> Get ₹100 Bonus
                     </span>
                     <button
@@ -303,7 +309,7 @@ const Register = () => {
                         setReferralCode('');
                         setRefInfo({ valid: null, checking: false, referrerName: '' });
                       }}
-                      className="text-[11px] font-medium text-gray-400 hover:text-gray-600 ml-1"
+                      className="text-[11px] font-bold text-slate-400 hover:text-slate-600 ml-1 cursor-pointer"
                     >
                       Cancel
                     </button>
@@ -316,20 +322,20 @@ const Register = () => {
                         ? 'text-red-500' 
                         : refInfo.valid 
                           ? 'text-emerald-500' 
-                          : 'text-gray-500'
+                          : 'text-slate-400'
                     } />
                   </div>
                   <input 
                     type="text" 
                     placeholder="e.g. CASH9F2A"
                     maxLength={15}
-                    className={`w-full uppercase bg-white/60 border ${
+                    className={`w-full uppercase bg-white/90 border ${
                       fieldError === 'referralCode' || refInfo.valid === false
                         ? 'border-red-400 bg-red-50/40 ring-2 ring-red-100 focus:border-red-500 focus:ring-red-200' 
                         : refInfo.valid
                           ? 'border-emerald-400 bg-emerald-50/30 ring-2 ring-emerald-100 focus:border-emerald-500 focus:ring-emerald-200'
-                          : 'border-gray-300 focus:border-[#4A3AFF]'
-                    } text-gray-900 placeholder-gray-400 rounded-2xl py-3.5 pl-11 pr-10 focus:outline-none focus:bg-white transition-all font-semibold tracking-wider backdrop-blur-sm shadow-sm`}
+                          : 'border-slate-200 focus:border-[#EA580C] focus:ring-2 focus:ring-orange-500/20'
+                    } text-slate-900 placeholder-slate-400 rounded-full py-3.5 pl-11 pr-10 focus:outline-none focus:bg-white transition-all font-bold tracking-wider shadow-sm text-sm`}
                     value={referralCode}
                     onChange={(e) => {
                       setReferralCode(e.target.value.toUpperCase());
@@ -343,7 +349,7 @@ const Register = () => {
                   />
                   {refInfo.checking && (
                     <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
-                      <Loader2 size={16} className="animate-spin text-gray-400" />
+                      <Loader2 size={16} className="animate-spin text-slate-400" />
                     </div>
                   )}
                   {refInfo.valid && !refInfo.checking && (
@@ -354,7 +360,7 @@ const Register = () => {
                 </div>
 
                 {refInfo.valid && (
-                  <p className="text-xs font-semibold text-emerald-700 flex items-center gap-1.5 mt-1 ml-1 bg-emerald-50/80 px-2.5 py-1 rounded-xl border border-emerald-200">
+                  <p className="text-xs font-bold text-emerald-700 flex items-center gap-1.5 mt-1 ml-1 bg-emerald-50/90 px-3 py-1.5 rounded-xl border border-emerald-200">
                     <CheckCircle2 size={13} className="text-emerald-600" />
                     Code applied! Referred by <span className="font-extrabold">{refInfo.referrerName}</span>
                   </p>
@@ -375,7 +381,7 @@ const Register = () => {
             <button 
               type="submit" 
               disabled={loading}
-              className="w-full bg-[#0F172A] text-white rounded-2xl py-4 text-sm font-extrabold shadow-[0_10px_20px_rgba(15,23,42,0.2)] hover:shadow-[0_10px_25px_rgba(15,23,42,0.3)] hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 mt-4 disabled:opacity-70 disabled:hover:translate-y-0 disabled:cursor-not-allowed"
+              className="w-full bg-gradient-to-r from-[#EA580C] via-[#F97316] to-[#EF4444] text-white rounded-full py-4 text-sm font-black shadow-[0_10px_25px_rgba(234,88,12,0.35)] hover:shadow-[0_12px_30px_rgba(234,88,12,0.5)] hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center justify-center gap-2 mt-4 disabled:opacity-70 disabled:hover:translate-y-0 disabled:cursor-not-allowed tracking-wide cursor-pointer"
             >
               {loading ? (
                 <>
@@ -385,15 +391,15 @@ const Register = () => {
               ) : (
                 <>
                   <span>Create Account</span>
-                  <ArrowRight size={18} strokeWidth={3} />
+                  <ArrowRight size={18} strokeWidth={2.5} />
                 </>
               )}
             </button>
           </form>
           
-          <p className="mt-8 text-center text-sm font-medium text-gray-700">
+          <p className="mt-6 text-center text-sm font-semibold text-slate-600">
             Already have an account?{' '}
-            <Link to="/login" className="font-extrabold text-gray-900 hover:underline decoration-2 underline-offset-2">
+            <Link to="/login" className="font-black text-[#EA580C] hover:text-[#C2410C] hover:underline decoration-2 underline-offset-2">
               Sign in
             </Link>
           </p>

@@ -43,7 +43,7 @@ const AdminUsers = () => {
               <tr key={u._id}>
                 <td className="whitespace-nowrap px-6 py-4">
                   <div className="font-bold text-[#0F172A]">{u.name}</div>
-                  <div className="text-sm text-gray-500">{u.email}</div>
+                  <div className="text-sm text-gray-500 font-medium">{u.phone ? `+91 ${u.phone}` : u.email}</div>
                 </td>
                 <td className="whitespace-nowrap px-6 py-4">
                   <span className={`inline-flex rounded-full px-2 text-xs font-semibold leading-5 ${
